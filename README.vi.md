@@ -13,7 +13,8 @@
 ## Demo Đầu Ra
 
 > **Ví dụ mẫu:** Quán cafe đô thị Việt Nam — Mô hình Counter-Service (Tại chỗ & Mang đi)  
-> Tải hoặc mở trực tiếp file HTML tương tác: [`examples/service-blueprint-cafe-vn-en.html`](./examples/service-blueprint-cafe-vn-en.html)
+> **Xem Live Demo tương tác:** https://quangho0911.github.io/service-blueprint-brainstorm/examples/service-blueprint-cafe-vn-en.html  
+> **File HTML nguồn:** [`examples/service-blueprint-cafe-vn-en.html`](./examples/service-blueprint-cafe-vn-en.html)
 
 ![Demo Service Blueprint — Quán Cafe Đô Thị Việt Nam](./docs/demo-service-blueprint-en.png)
 

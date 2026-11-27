@@ -13,7 +13,8 @@
 ## Demo Output
 
 > **Example:** Vietnamese Urban Coffee Shop — Counter-Service (Dine-in & Take-away)  
-> Download or open the standalone interactive HTML: [`examples/service-blueprint-cafe-vn-en.html`](./examples/service-blueprint-cafe-vn-en.html)
+> **Live Interactive Demo:** https://quangho0911.github.io/service-blueprint-brainstorm/examples/service-blueprint-cafe-vn-en.html  
+> **Source HTML:** [`examples/service-blueprint-cafe-vn-en.html`](./examples/service-blueprint-cafe-vn-en.html)
 
 ![Service Blueprint Demo — Vietnamese Urban Coffee Shop](./docs/demo-service-blueprint-en.png)
 
