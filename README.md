@@ -2,6 +2,13 @@
 
 An open **Agent Skill** (`SKILL.md`) compatible with **Claude Code**, **OpenAI Codex**, **Cursor**, and **Antigravity** that guides structured **10-step Service Design Blueprint brainstorming** for any product or service and generates a **100% self-contained, Light-Theme-only interactive HTML Service Blueprint** (zero external CDNs — opens identically in any browser or IDE).
 
+## Demo Output
+
+> **Example:** Vietnamese Urban Coffee Shop — Counter-Service (Dine-in & Take-away)  
+> Open or download the standalone interactive HTML: [`examples/service-blueprint-cafe-vn-en.html`](./examples/service-blueprint-cafe-vn-en.html)
+
+![Service Design Blueprint Demo — Vietnamese Urban Coffee Shop](./docs/demo-service-blueprint-en.png)
+
 ## 10-Step Way of Thinking
 1. **Business Model** (Counter-service, Take-away, Table-service, SaaS, Marketplace, Clinic, O2O...)
 2. **Location & Local Context** (Vietnam, Global, HCMC, District 1, US/EU...)

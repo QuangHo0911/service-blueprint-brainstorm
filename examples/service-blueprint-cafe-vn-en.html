@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Service Design Blueprint</title>
+  <style>
+    /* ==========================================================================
+       Standalone Portable Light-Theme Stylesheet (Zero External CDN Dependencies)
+       Designed to render identically in Antigravity Artifacts, Browsers, & IDEs.
+       ========================================================================== */
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --content: #f8fafc;
+      --content-alt: #f1f5f9;
+      --border: #cbd5e1;
+      --card-border: #e2e8f0;
+      --fg: #0f172a;
+      --muted: #64748b;
+      --placeholder: #94a3b8;
+
+      --primary: #2563eb;
+      --primary-fg: #ffffff;
+      --primary-tint-bg: #eff6ff;
+      --primary-tint-bd: #bfdbfe;
+
+      --secondary-bg: #f1f5f9;
+      --secondary-fg: #334155;
+
+      --success: #15803d;
+      --success-tint-bg: #f0fdf4;
+      --success-tint-bd: #bbf7d0;
+
+      --warning: #b45309;
+      --warning-bar: #d97706;
+      --warning-tint-bg: #fffbeb;
+      --warning-tint-bd: #fde68a;
+
+      --error: #dc2626;
+      --error-tint-bg: #fef2f2;
+      --error-tint-bd: #fecaca;
+
+      --line-interaction: #dc2626;
+      --line-visibility: #2563eb;
+      --line-internal: #7c3aed;
+
+      --dot-physical: #10b981;
+      --dot-digital: #2563eb;
+
+      --c1-bg: #eff6ff; --c1-bd: #bfdbfe; --c1-fg: #1d4ed8;
+      --c2-bg: #ecfdf5; --c2-bd: #a7f3d0; --c2-fg: #047857;
+      --c3-bg: #ecfeff; --c3-bd: #a5f3fc; --c3-fg: #0e7490;
+      --c4-bg: #f5f3ff; --c4-bd: #ddd6fe; --c4-fg: #6d28d9;
+      --c5-bg: #fff7ed; --c5-bd: #fed7aa; --c5-fg: #c2410c;
+      --c6-bg: #f1f5f9; --c6-bd: #cbd5e1; --c6-fg: #334155;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body { padding: 16px; }
+    @media (min-width: 768px) { body { padding: 24px; } }
+
+    .container {
+      max-width: 1640px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-pad { padding: 20px; }
+
+    /* Header */
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    @media (min-width: 1024px) {
+      .header-top {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      line-height: 1.35;
+    }
+
+    .h1 {
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) {
+      .kpi-grid { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+    }
+
+    .kpi-box {
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); }
+    .kpi-val {
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--fg);
+      margin-top: 2px;
+    }
+    .kpi-val.is-primary { color: var(--primary); }
+    .kpi-val.is-warning { color: var(--warning-bar); }
+
+    /* Toolbar */
+    .header-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      background: var(--secondary-bg);
+      color: var(--secondary-fg);
+    }
+    .btn:hover { background: #e2e8f0; }
+    .btn.is-active {
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    .btn.is-active:hover { background: #1d4ed8; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      background: var(--content-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+    }
+    .seg-btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .seg-btn.active-offpeak {
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    .seg-btn.active-peak {
+      background: var(--warning-bar);
+      color: #ffffff;
+    }
+
+    .control-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+    }
+
+    .select, .input {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      outline: none;
+    }
+    .select:focus, .input:focus { border-color: var(--primary); }
+    .input { width: 230px; }
+    .input::placeholder { color: var(--placeholder); }
+
+    .btn-outline {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--fg);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-outline:hover { border-color: var(--primary); }
+    .btn-outline.active-warn {
+      background: var(--warning-tint-bg);
+      border-color: var(--warning-tint-bd);
+      color: var(--warning);
+    }
+
+    /* Color Tints */
+    .tint-primary { background: var(--primary-tint-bg); border-color: var(--primary-tint-bd); color: var(--primary); }
+    .tint-success { background: var(--success-tint-bg); border-color: var(--success-tint-bd); color: var(--success); }
+    .tint-warning { background: var(--warning-tint-bg); border-color: var(--warning-tint-bd); color: var(--warning); }
+    .tint-error   { background: var(--error-tint-bg);   border-color: var(--error-tint-bd);   color: var(--error); }
+    .tint-c1 { background: var(--c1-bg); border-color: var(--c1-bd); color: var(--c1-fg); }
+    .tint-c2 { background: var(--c2-bg); border-color: var(--c2-bd); color: var(--c2-fg); }
+    .tint-c3 { background: var(--c3-bg); border-color: var(--c3-bd); color: var(--c3-fg); }
+    .tint-c4 { background: var(--c4-bg); border-color: var(--c4-bd); color: var(--c4-fg); }
+    .tint-c5 { background: var(--c5-bg); border-color: var(--c5-bd); color: var(--c5-fg); }
+    .tint-c6 { background: var(--c6-bg); border-color: var(--c6-bd); color: var(--c6-fg); }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .dash-sample { width: 20px; height: 0; display: inline-block; }
+    .dash-red { border-top: 2px dashed var(--line-interaction); }
+    .dash-blue { border-top: 2px dashed var(--line-visibility); }
+    .dash-purple { border-top: 2px dashed var(--line-internal); }
+    .legend-hint { font-weight: 600; color: var(--primary); }
+
+    /* Blueprint Matrix */
+    .matrix-card { overflow: hidden; }
+    .blueprint-scroll { overflow-x: auto; }
+    .blueprint-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+    .blueprint-scroll::-webkit-scrollbar-track { background: var(--content-alt); }
+    .blueprint-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+    .bp-grid-wrap { min-width: 1480px; }
+    .bp-row { display: grid; }
+    .bp-row-border { border-bottom: 1px solid var(--card-border); }
+    .bp-row-border-strong { border-bottom: 1px solid var(--border); }
+    .bp-row-header { background: var(--content-alt); }
+    .bp-row-subtle { background: var(--content); }
+
+    .lane-label {
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      padding: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 2px;
+    }
+    .lane-label.bg-header { background: var(--content-alt); justify-content: center; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+    .lane-label.bg-subtle { background: var(--content); }
+    .lane-sub { font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; }
+    .lane-title-flex { display: inline-flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; flex-shrink: 0; }
+    .dot-physical { background: var(--dot-physical); }
+    .dot-digital  { background: var(--dot-digital); }
+
+    .stage-cell {
+      padding: 10px;
+      border-right: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: background-color 0.14s ease;
+    }
+    .stage-cell:last-child { border-right: none; }
+
+    .stage-head-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--card-border);
+      padding: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.14s ease;
+    }
+    .stage-head-btn:last-child { border-right: none; }
+    .stage-head-btn:hover { background: var(--card); }
+
+    .stage-col-selected {
+      box-shadow: inset 0 0 0 2px var(--primary);
+      background-color: #f4f8ff !important;
+    }
+    .fail-ring { box-shadow: inset 0 0 0 2px var(--warning-bar); }
+
+    .stage-head-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .stage-code { font-size: 12px; font-weight: 700; color: var(--primary); }
+    .dur-badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      white-space: nowrap;
+    }
+    .dur-badge.is-peak-hot {
+      background: var(--warning-tint-bg);
+      border-color: var(--warning-tint-bd);
+      color: var(--warning);
+    }
+    .stage-name { font-size: 12.5px; font-weight: 700; color: var(--fg); line-height: 1.35; }
+    .stage-en { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Neutral Evidence Chips (Unified Option 1 for Physical & Digital) */
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip-neutral {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .chip-card-neutral {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .empty-note { font-size: 12px; font-style: italic; color: var(--muted); }
+
+    /* Customer Goal Row */
+    .goal-cell-inner {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      gap: 6px;
+    }
+    .goal-box {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--primary-tint-bd);
+      background: var(--primary-tint-bg);
+      color: var(--fg);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+    .goal-arrow {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* Step Flows & Scenarios */
+    .step-card {
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--fg);
+    }
+    .step-card.is-white { background: var(--card); }
+
+    .step-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--primary-tint-bd);
+      background: var(--primary-tint-bg);
+      color: var(--primary);
+      margin-right: 4px;
+    }
+    .step-tag-muted {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--secondary-bg);
+      color: var(--secondary-fg);
+    }
+
+    .step-arrow {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1;
+      margin: 3px 0;
+      user-select: none;
+    }
+
+    .scenario-box {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+      background: var(--card);
+    }
+    .scenario-head { margin-bottom: 6px; }
+    .scenario-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .branch-sep {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .branch-sep-line { height: 1px; flex: 1; background: var(--border); }
+    .branch-sep-text { font-weight: 700; text-transform: uppercase; font-size: 12px; }
+    .branch-sep-text.is-branch { color: var(--primary); }
+
+    .actor-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .actor-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .step-text { margin: 0; font-size: 12px; line-height: 1.45; }
+
+    /* Three Blueprint Lines */
+    .bp-divider {
+      padding: 6px 12px;
+      background: var(--content-alt);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .bp-divider.line-interaction { border-top: 2px dashed var(--line-interaction); color: var(--line-interaction); }
+    .bp-divider.line-visibility  { border-top: 2px dashed var(--line-visibility);  color: var(--line-visibility); }
+    .bp-divider.line-internal    { border-top: 2px dashed var(--line-internal);    color: var(--line-internal); }
+
+    .support-stack { display: flex; flex-direction: column; gap: 6px; }
+    .fail-inline-box {
+      margin-top: 6px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--warning-tint-bd);
+      background: var(--warning-tint-bg);
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--fg);
+    }
+    .fail-inline-box strong { color: var(--warning); }
+
+    .dimmed { opacity: 0.28; transition: opacity 0.18s ease; }
+    .highlighted { opacity: 1; transition: opacity 0.18s ease; }
+
+    /* Stage Inspector */
+    .inspector-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .inspector-title { margin: 6px 0 0 0; font-size: 16px; font-weight: 700; }
+    .inspector-nav { display: flex; gap: 6px; }
+
+    .grid-12 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 1024px) {
+      .grid-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .col-5 { grid-column: span 5 / span 5; }
+      .col-7 { grid-column: span 7 / span 7; }
+    }
+
+    .stack-12 { display: flex; flex-direction: column; gap: 12px; }
+    .stack-10 { display: flex; flex-direction: column; gap: 10px; }
+
+    .panel-box {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: var(--content);
+    }
+    .panel-box.is-primary {
+      background: var(--primary-tint-bg);
+      border-color: var(--primary-tint-bd);
+    }
+    .panel-box.is-warning {
+      background: var(--warning-tint-bg);
+      border-color: var(--warning-tint-bd);
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .eyebrow.is-primary { color: var(--primary); }
+    .eyebrow.is-warning { color: var(--warning); }
+
+    .evidence-pair {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 640px) {
+      .evidence-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .mitigation-row {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--warning-tint-bd);
+      font-size: 12px;
+    }
+    .mitigation-row strong { color: var(--success); }
+
+    .inv-map-card {
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+    }
+    .inv-map-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    /* Inventory Table */
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .h2 { margin: 0 0 4px 0; font-size: 17px; font-weight: 700; }
+    .muted-xs { margin: 0; font-size: 12px; color: var(--muted); }
+
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      text-align: left;
+    }
+    thead tr {
+      background: var(--content-alt);
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    th { padding: 10px 12px; font-weight: 700; white-space: nowrap; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--card-border); vertical-align: top; }
+    tbody tr:hover { background: var(--content); }
+    .td-bold { font-weight: 600; color: var(--fg); }
+    .td-muted { color: var(--muted); }
+    .nowrap { white-space: nowrap; }
+
+    /* Bottleneck Bars */
+    .bar-group { display: flex; flex-direction: column; gap: 6px; }
+    .bar-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12.5px;
+    }
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      background: var(--content-alt);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill-off { height: 100%; background: var(--primary); border-radius: 999px; }
+    .bar-fill-peak { height: 100%; background: var(--warning-bar); border-radius: 999px; }
+    .bar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+    .fp-card {
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .fp-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .fp-title { font-weight: 700; color: var(--fg); }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="card card-pad">
+      <div class="header-top">
+        <div>
+          <div class="badge-row">
+            <span class="pill tint-primary">Service Design Blueprint</span>
+            <span id="meta-model" class="pill tint-c2"></span>
+            <span id="meta-location" class="pill tint-c4"></span>
+          </div>
+          <h1 id="meta-title" class="h1"></h1>
+          <p id="meta-subtitle" class="subtitle"></p>
+        </div>
+        <div id="kpi-grid" class="kpi-grid"></div>
+      </div>
+
+      <div class="header-toolbar">
+        <div class="tabs" role="tablist">
+          <button data-tab="blueprint" class="btn is-active">1. Blueprint Matrix</button>
+          <button data-tab="inventory" class="btn">2. Inventory Explorer</button>
+          <button data-tab="bottlenecks" class="btn">3. Time &amp; Bottlenecks (Fail Points)</button>
+        </div>
+
+        <div id="blueprint-controls" class="controls">
+          <div class="segmented">
+            <button id="btn-offpeak" class="seg-btn active-offpeak"></button>
+            <button id="btn-peak" class="seg-btn"></button>
+          </div>
+
+          <label class="control-label">
+            <span>Filter Actor:</span>
+            <select id="actor-filter" class="select"></select>
+          </label>
+
+          <button id="btn-failpoints" class="btn-outline">Show Fail Points</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- TAB 1: BLUEPRINT MATRIX -->
+    <section id="tab-blueprint" class="stack-12">
+      <div class="legend">
+        <div class="legend-items">
+          <span class="legend-item"><span class="dash-sample dash-red"></span> Line of Interaction</span>
+          <span class="legend-item"><span class="dash-sample dash-blue"></span> Line of Visibility</span>
+          <span class="legend-item"><span class="dash-sample dash-purple"></span> Line of Internal Interaction</span>
+          <span class="legend-item"><span class="step-tag" style="margin:0;">Step N</span> Sequential Flow</span>
+          <span class="legend-item"><span class="scenario-pill tint-c4">Scenario / Branch</span> Alternative Branch</span>
+        </div>
+        <span class="legend-hint">Click any Stage column to inspect Action → Inventory below</span>
+      </div>
+
+      <div class="card matrix-card">
+        <div class="blueprint-scroll">
+          <div id="blueprint-grid" class="bp-grid-wrap"></div>
+        </div>
+      </div>
+
+      <div id="stage-inspector" class="card card-pad"></div>
+    </section>
+
+    <!-- TAB 2: INVENTORY EXPLORER -->
+    <section id="tab-inventory" class="hidden">
+      <div class="card card-pad">
+        <div class="section-head">
+          <div>
+            <h2 class="h2">Inventory Catalog by Actor &amp; Action</h2>
+            <p class="muted-xs">All consumables, equipment, space assets, and IT infrastructure required for each Actor to execute their Step Flow.</p>
+          </div>
+          <div class="controls">
+            <input id="inv-search" type="text" class="input" placeholder="Search items, equipment, actions..." />
+            <select id="inv-cat" class="select"></select>
+            <select id="inv-actor" class="select"></select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Inventory Item</th>
+                <th>Category</th>
+                <th>Actor</th>
+                <th>Supports Action</th>
+                <th>Stage</th>
+                <th>Replenishment / Management</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: BOTTLENECKS & TIME ANALYSIS -->
+    <section id="tab-bottlenecks" class="hidden">
+      <div class="grid-12">
+        <div class="col-7 card card-pad stack-12">
+          <div>
+            <h2 class="h2">Duration Breakdown by Stage</h2>
+            <p id="time-subtitle" class="muted-xs"></p>
+          </div>
+          <div id="time-bars" class="stack-12"></div>
+          <div id="bar-legend" class="bar-legend"></div>
+        </div>
+
+        <div class="col-5 card card-pad stack-12">
+          <div>
+            <h2 class="h2">Key Experience Fail Points</h2>
+            <p class="muted-xs">Highest-risk breakdown points across the blueprint and operational mitigations.</p>
+          </div>
+          <div id="failpoints-list" class="stack-10"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* === BLUEPRINT_DATA_START === */
+    const BLUEPRINT_DATA = {
+  "lang": "en",
+  "title": "Service Blueprint — Vietnamese Urban Coffee Shop",
+  "subtitle": "Context: Urban Vietnamese coffee shop serving Dine-in & Take-away via counter ordering, pager pickup, motorbike parking, and work/social seating. Actions follow sequential Step Flows with explicit Scenario/Branch separation.",
+  "businessModel": "Counter-Service (Dine-in & Take-away)",
+  "location": "Vietnam (Major Urban Area)",
+  "offPeakLabel": "Off-peak",
+  "peakLabel": "Peak Hours",
+  "peakDescription": "7:30–9:30 AM, 12:30–2:00 PM, 7:30–9:30 PM",
+  "timeUnit": "min",
+  "stayPhaseNote": "Stage 6 (Consumption & Stay): 45 – 180 min for Dine-in guests (45–60 min socializing, 2–3 hrs working/studying). Take-away guests skip this stage (0 min).",
+  "kpis": [
+    {
+      "label": "Blueprint Structure",
+      "valueOffPeak": "7 Stages • 9 Lanes",
+      "valuePeak": "7 Stages • 9 Lanes",
+      "accent": "default"
+    },
+    {
+      "label": "Take-away (Total)",
+      "valueOffPeak": "6 – 11 min",
+      "valuePeak": "16 – 30 min",
+      "accent": "dynamic"
+    },
+    {
+      "label": "Dine-in (Total)",
+      "valueOffPeak": "55 – 190 min",
+      "valuePeak": "65 – 155 min",
+      "accent": "default"
+    },
+    {
+      "label": "Actors / Inventory",
+      "valueOffPeak": "7 Actors • 33+ Items",
+      "valuePeak": "7 Actors • 33+ Items",
+      "accent": "default"
+    }
+  ],
+  "actors": [
+    {
+      "name": "Security",
+      "label": "Security / Valet",
+      "color": "c5"
+    },
+    {
+      "name": "Cashier",
+      "label": "Cashier / Order",
+      "color": "c1"
+    },
+    {
+      "name": "Barista",
+      "label": "Barista",
+      "color": "c2"
+    },
+    {
+      "name": "Floor Staff",
+      "label": "Floor Staff / Steward",
+      "color": "c3"
+    },
+    {
+      "name": "Shift Manager",
+      "label": "Shift Manager",
+      "color": "c4"
+    },
+    {
+      "name": "System",
+      "label": "IT / Support Systems",
+      "color": "c6"
+    }
+  ],
+  "stages": [
+    {
+      "id": 1,
+      "code": "S1",
+      "name": "1. Discovery & Decision",
+      "en": "Pre-visit",
+      "goal": "Find a coffee shop that fits the need (nearby, good drinks, suitable for working or socializing, with motorbike parking).",
+      "timeOffPeak": "2 – 5 min",
+      "timePeak": "2 – 5 min",
+      "maxOff": 5,
+      "maxPeak": 5,
+      "isStayPhase": false,
+      "isBottleneck": false,
+      "physicalEvidence": [
+        "Storefront & Signage",
+        "Sidewalk A-Frame Promo Board"
+      ],
+      "digitalEvidence": [
+        "Google Maps (hours, reviews, photos)",
+        "Facebook / TikTok Page",
+        "Online Menu & Zalo OA"
+      ],
+      "customerFlows": [
+        {
+          "label": "Scenario A: Online Search",
+          "connectorBefore": null,
+          "color": "c1",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Search on Google Maps / TikTok; browse ambiance photos & menu prices."
+            },
+            {
+              "num": 2,
+              "text": "Check opening hours, Wi-Fi/outlet reviews, and parking availability."
+            },
+            {
+              "num": 3,
+              "text": "Decide to visit and open turn-by-turn navigation."
+            }
+          ]
+        },
+        {
+          "label": "Scenario B: Walk-in (Passerby)",
+          "connectorBefore": "OR",
+          "color": "c4",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Spot inviting storefront or seasonal A-frame promo board while passing by."
+            },
+            {
+              "num": 2,
+              "text": "Glance at crowd level & parking space, then decide to stop in."
+            }
+          ]
+        }
+      ],
+      "frontstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Cashier",
+          "text": "Inspect storefront cleanliness, place A-frame board, and turn on signage lighting before opening."
+        }
+      ],
+      "backstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Shift Manager",
+          "text": "Update opening hours, seasonal items, and out-of-stock notices on Google Maps & social channels."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Shift Manager",
+          "text": "Monitor and respond to new customer reviews and inquiries."
+        }
+      ],
+      "support": [
+        {
+          "actor": "System",
+          "text": "Google Business Profile, Social Media Marketing, Zalo OA store locator."
+        }
+      ],
+      "failPoint": "Outdated opening hours or unclear parking info on Google Maps causes customers to leave upon arrival.",
+      "mitigation": "Keep Google Maps updated in real time on holidays; post clear parking photos and free-parking policy.",
+      "inventoryMapping": [
+        {
+          "actor": "Shift Manager",
+          "action": "Maintain storefront visibility",
+          "items": [
+            "A-frame sidewalk standee",
+            "Seasonal promo posters",
+            "LED storefront signage"
+          ]
+        },
+        {
+          "actor": "System",
+          "action": "Run digital discovery channels",
+          "items": [
+            "Google Business account",
+            "Updated photo/menu assets",
+            "Zalo OA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "code": "S2",
+      "name": "2. Arrival & Parking",
+      "en": "Motorbike Valet",
+      "goal": "Park motorbike quickly and safely without sun/rain hassle, and step into a cool, welcoming shop.",
+      "timeOffPeak": "1 – 2 min",
+      "timePeak": "3 – 5 min",
+      "maxOff": 2,
+      "maxPeak": 5,
+      "isStayPhase": false,
+      "isBottleneck": true,
+      "physicalEvidence": [
+        "Sidewalk / Basement Parking",
+        "Security Booth",
+        "Parking Ticket / Hard Card",
+        "Seat Sun-Cover & Umbrella",
+        "Glass Entrance Door"
+      ],
+      "digitalEvidence": [],
+      "customerFlows": [
+        {
+          "label": null,
+          "connectorBefore": null,
+          "color": "primary",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Pull motorbike into parking zone and turn off engine as directed."
+            },
+            {
+              "num": 2,
+              "text": "Store helmet/belongings and receive parking card from security."
+            },
+            {
+              "num": 3,
+              "text": "Walk from parking area through entrance door into the shop."
+            }
+          ]
+        }
+      ],
+      "frontstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Security",
+          "text": "Direct customer to open slot and assist parking motorbike neatly."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Security",
+          "text": "Mark plate number (if paper ticket) and hand over parking card."
+        },
+        {
+          "step": "Step 3",
+          "actor": "Security",
+          "text": "Place sun-cover on seat (or escort with umbrella in rain) and open door with a greeting."
+        }
+      ],
+      "backstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Security",
+          "text": "Re-arrange rows (keep quick take-away bikes in front, long-stay dine-in bikes inside)."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Shift Manager",
+          "text": "Coordinate overflow partner parking lot nearby when main lot nears capacity."
+        }
+      ],
+      "support": [
+        {
+          "actor": "System",
+          "text": "Parking CCTV surveillance, partner overflow parking agreement, internal walkie-talkies."
+        }
+      ],
+      "failPoint": "Overcrowded parking at peak hours or heavy rain without umbrellas causes walk-away before entering.",
+      "mitigation": "Separate take-away lane upfront; keep 3–4 large umbrellas & spare raincoats ready; use walkie-talkie to alert manager early.",
+      "inventoryMapping": [
+        {
+          "actor": "Security",
+          "action": "Manage & secure motorbikes",
+          "items": [
+            "Hard plastic parking cards / tickets",
+            "Chalk marker",
+            "Whistle & uniform",
+            "Parking CCTV cameras"
+          ]
+        },
+        {
+          "actor": "Security",
+          "action": "Weather & seat protection",
+          "items": [
+            "Seat sun-covers",
+            "Large handheld umbrellas",
+            "Wet raincoat rack at entrance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "code": "S3",
+      "name": "3. Menu & Ordering",
+      "en": "Counter Discovery",
+      "goal": "Quickly pick drinks tailored to taste (strength, sugar, ice, toppings) and optional pastry.",
+      "timeOffPeak": "1.5 – 3 min",
+      "timePeak": "4 – 8 min",
+      "maxOff": 3,
+      "maxPeak": 8,
+      "isStayPhase": false,
+      "isBottleneck": true,
+      "physicalEvidence": [
+        "Queue Area",
+        "Cashier Counter",
+        "Wall Menu Board & Counter Menu",
+        "Pastry Display Chiller"
+      ],
+      "digitalEvidence": [
+        "Customer-Facing POS Display",
+        "QR Digital Menu (optional)"
+      ],
+      "customerFlows": [
+        {
+          "label": null,
+          "connectorBefore": null,
+          "color": "primary",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Queue at counter, scan wall menu board and pastry display."
+            },
+            {
+              "num": 2,
+              "text": "Ask cashier for best-sellers, less-sweet, or non-caffeine recommendations."
+            },
+            {
+              "num": 3,
+              "text": "Place order (drink, size, sugar/ice level, pastry) and state Dine-in or Take-away."
+            },
+            {
+              "num": 4,
+              "text": "Verify items & modifiers on customer-facing POS screen."
+            }
+          ]
+        }
+      ],
+      "frontstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Cashier",
+          "text": "Greet customer warmly, listen to preferences, and suggest matching drinks."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Cashier",
+          "text": "Enter order & modifiers (sugar/ice/toppings) into POS; suggest size-up or pastry combo."
+        },
+        {
+          "step": "Step 3",
+          "actor": "Cashier",
+          "text": "Read back full order & total amount to confirm accuracy."
+        }
+      ],
+      "backstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Barista",
+          "text": "Proactively notify cashier of low-stock items (86-list) before orders are taken."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Shift Manager",
+          "text": "Open secondary POS or deploy queue-busting tablet when queue exceeds 5 guests."
+        }
+      ],
+      "support": [
+        {
+          "actor": "System",
+          "text": "POS software (iPOS / KiotViet / Sapo) pre-configured with modifiers & upsell combos."
+        }
+      ],
+      "failPoint": "Morning rush queue bottleneck (7:30–9:00 AM) or wrong ice/take-away modifier causing drink remakes.",
+      "mitigation": "Highlight Best-Seller/Signature tags on menu; use customer-facing POS screen for visual confirmation before payment.",
+      "inventoryMapping": [
+        {
+          "actor": "Cashier",
+          "action": "Present menu & pastries",
+          "items": [
+            "Backlit wall menu board",
+            "Counter menu standee",
+            "Glass pastry chiller",
+            "Pastry tongs & trays"
+          ]
+        },
+        {
+          "actor": "Cashier",
+          "action": "Capture accurate orders",
+          "items": [
+            "Touch POS terminal + customer screen",
+            "POS software with recipe modifiers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "code": "S4",
+      "name": "4. Payment & Seating",
+      "en": "Checkout & Setup",
+      "goal": "Pay smoothly without network friction; quickly secure a seat with power outlet & Wi-Fi (or convenient waiting spot).",
+      "timeOffPeak": "0.5 – 1 min",
+      "timePeak": "1 – 2 min",
+      "maxOff": 1,
+      "maxPeak": 2,
+      "isStayPhase": false,
+      "isBottleneck": false,
+      "physicalEvidence": [
+        "Printed Receipt (with Wi-Fi pass)",
+        "Cash / Card",
+        "Vibration Pager",
+        "Tables, Chairs & Power Outlets"
+      ],
+      "digitalEvidence": [
+        "Dynamic VietQR Code",
+        "Banking App / MoMo Wallet",
+        "Audio Payment Box (TingTing)",
+        "Wi-Fi Network (SSID & Login)"
+      ],
+      "customerFlows": [
+        {
+          "label": "Shared Steps (Checkout)",
+          "connectorBefore": null,
+          "color": "primary",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Scan VietQR / MoMo, tap card, or pay cash; give phone number for loyalty points."
+            },
+            {
+              "num": 2,
+              "text": "Receive receipt (with Wi-Fi password) and vibration pager."
+            }
+          ]
+        },
+        {
+          "label": "Branch A: Dine-in",
+          "connectorBefore": "↓ branch",
+          "color": "c2",
+          "steps": [
+            {
+              "num": 3,
+              "text": "Head to seating floor, pick a table near a power outlet, and connect to Wi-Fi."
+            }
+          ]
+        },
+        {
+          "label": "Branch B: Take-away",
+          "connectorBefore": "OR",
+          "color": "c5",
+          "steps": [
+            {
+              "num": 3,
+              "text": "Move to waiting bench near pick-up counter until pager buzzes."
+            }
+          ]
+        }
+      ],
+      "frontstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Cashier",
+          "text": "Generate dynamic VietQR / tap card / handle cash change; confirm payment via audio box."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Cashier",
+          "text": "Print receipt, hand over pager, and point out Wi-Fi password & open seating floors."
+        },
+        {
+          "step": "Step 3",
+          "actor": "Floor Staff",
+          "text": "Guide guests to freshly wiped open tables during busy hours."
+        }
+      ],
+      "backstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Barista",
+          "text": "Receive auto-printed cup labels & order ticket at bar immediately upon payment."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Shift Manager",
+          "text": "Replenish small cash change or reconcile delayed bank transfer notifications."
+        }
+      ],
+      "support": [
+        {
+          "actor": "System",
+          "text": "Dynamic VietQR gateway + instant audio payment box; CRM loyalty sync; automatic BOM inventory deduction."
+        }
+      ],
+      "failPoint": "Slow banking app / fake transfer screenshots; lack of small change; dead pager battery; no seats with outlets.",
+      "mitigation": "Use POS-linked dynamic VietQR + audio confirmation box; maintain fixed opening cash float; keep pagers docked.",
+      "inventoryMapping": [
+        {
+          "actor": "Cashier",
+          "action": "Process cash & digital payments",
+          "items": [
+            "Cash drawer + opening small-bill float",
+            "Dynamic VietQR display",
+            "Payment audio notification box",
+            "mPOS card reader"
+          ]
+        },
+        {
+          "actor": "Cashier",
+          "action": "Issue receipt & waiting pager",
+          "items": [
+            "Thermal receipt printer + K80 paper rolls",
+            "16–20 pager set with charging dock"
+          ]
+        },
+        {
+          "actor": "Floor Staff",
+          "action": "Provide seating & connectivity",
+          "items": [
+            "Zoned tables/chairs (work & group)",
+            "Wall/floor power outlets",
+            "High-capacity Mesh Wi-Fi"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "code": "S5",
+      "name": "5. Prep & Pickup",
+      "en": "Bar Production",
+      "goal": "Receive accurate, well-presented drinks at the right temperature quickly with all needed accessories.",
+      "timeOffPeak": "3 – 5 min",
+      "timePeak": "8 – 15 min",
+      "maxOff": 5,
+      "maxPeak": 15,
+      "isStayPhase": false,
+      "isBottleneck": true,
+      "physicalEvidence": [
+        "Buzzing/Flashing Pager",
+        "Pick-up & Open Bar Counter",
+        "Cup Order Label",
+        "Serving Tray / Take-away Bag",
+        "Condiment Station (straws, napkins)"
+      ],
+      "digitalEvidence": [],
+      "customerFlows": [
+        {
+          "label": "Shared Steps (Pickup)",
+          "connectorBefore": null,
+          "color": "primary",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Wait at table or bench while bar prepares the order."
+            },
+            {
+              "num": 2,
+              "text": "Hear pager buzz → return pager at pick-up counter and collect tray/bag."
+            },
+            {
+              "num": 3,
+              "text": "Check cup label; grab straws, napkins, or syrup at condiment station."
+            }
+          ]
+        },
+        {
+          "label": "Branch A: Dine-in",
+          "connectorBefore": "↓ branch",
+          "color": "c2",
+          "steps": [
+            {
+              "num": 4,
+              "text": "Carry drink & pastry tray back to chosen table."
+            }
+          ]
+        },
+        {
+          "label": "Branch B: Take-away",
+          "connectorBefore": "OR",
+          "color": "c5",
+          "steps": [
+            {
+              "num": 4,
+              "text": "Check spill-proof lid/bag and walk straight out to parking (jump to S7)."
+            }
+          ]
+        }
+      ],
+      "frontstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Barista",
+          "text": "Trigger pager number as soon as all drinks & pastries in the order are ready."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Barista",
+          "text": "Collect pager, hand over tray/bag with a smile, and thank customer."
+        },
+        {
+          "step": "Step 3",
+          "actor": "Floor Staff",
+          "text": "Proactively help carry trays for large groups, elderly guests, or parents with kids."
+        }
+      ],
+      "backstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Barista",
+          "text": "Read label, stick onto right cup type (glassware vs. take-away), and queue production."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Barista",
+          "text": "Pull espresso / pour tea base / shake / steam milk / add ice & toppings per SOP; warm pastry if requested."
+        },
+        {
+          "step": "Step 3",
+          "actor": "Barista",
+          "text": "Run visual QC (fill level, foam, clean rim) and plate onto tray or seal into take-away bag."
+        },
+        {
+          "step": "Step 4",
+          "actor": "Floor Staff",
+          "text": "Refill bar ice bin, restock cups/lids/straws, and prep fresh topping batches."
+        }
+      ],
+      "support": [
+        {
+          "actor": "System",
+          "text": "Auto cup-label printer, standardized recipe SOPs, RO water filtration, morning prep & shelf-life labeling."
+        }
+      ],
+      "failPoint": "Biggest bottleneck: In-store orders collide with 10–15 GrabFood/ShopeeFood delivery orders at peak, pushing waits to 12–15+ min.",
+      "mitigation": "Split 2 Baristas at peak (hot/espresso vs. cold/tea) or separate delivery queue; pre-batch phin coffee & tea bases.",
+      "inventoryMapping": [
+        {
+          "actor": "Barista",
+          "action": "Craft beverages per SOP",
+          "items": [
+            "Roasted espresso & phin coffee",
+            "Tea leaves (black, oolong, jasmine, matcha)",
+            "Condensed, fresh & oat milk, cream",
+            "Syrups, fruit jams, fresh fruit, toppings",
+            "Purified ice cubes & RO water",
+            "Espresso machine, grinder, blender",
+            "Phin filters, tea dispensers, shakers, scales",
+            "Pastry warming oven"
+          ]
+        },
+        {
+          "actor": "Barista",
+          "action": "Package & hand off orders",
+          "items": [
+            "Label printer & thermal stickers",
+            "Glassware, ceramic mugs, coasters, trays",
+            "PET/PP cold cups, hot paper cups + sleeves",
+            "Lids / cup sealer, T-bags, 2–4 cup carriers"
+          ]
+        },
+        {
+          "actor": "Floor Staff",
+          "action": "Restock condiment station",
+          "items": [
+            "Straws, stirrers, napkins, sugar packets"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "code": "S6",
+      "name": "6. Consumption & Stay",
+      "en": "In-Store Experience",
+      "goal": "Enjoy great-tasting drinks to the last sip; work productively or socialize comfortably in a clean, cool space.",
+      "timeOffPeak": "45 – 180 min",
+      "timePeak": "45 – 120 min",
+      "maxOff": 0,
+      "maxPeak": 0,
+      "isStayPhase": true,
+      "isBottleneck": false,
+      "physicalEvidence": [
+        "Drink Flavor & Ice Melt Rate",
+        "AC Temperature & Music",
+        "Free Iced Tea Dispenser",
+        "Restroom Cleanliness",
+        "Clean Tables & Seating"
+      ],
+      "digitalEvidence": [
+        "Wi-Fi Speed & Stability",
+        "Social Media Check-in / Stories"
+      ],
+      "customerFlows": [
+        {
+          "label": "Branch A: Dine-in",
+          "connectorBefore": null,
+          "color": "c2",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Enjoy drink & pastry (snap aesthetic photos if desired)."
+            },
+            {
+              "num": 2,
+              "text": "Work on laptop, study, or chat; refill complimentary iced tea/water."
+            },
+            {
+              "num": 3,
+              "text": "Use restroom or request assistance (drink remake, AC/Wi-Fi check) if needed."
+            }
+          ]
+        },
+        {
+          "label": "Branch B: Take-away",
+          "connectorBefore": "OR",
+          "color": "c5",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Skip in-store stay (0 min) — proceed directly to S7."
+            }
+          ]
+        }
+      ],
+      "frontstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Floor Staff",
+          "text": "Patrol floors periodically, refill free iced tea, and politely bus empty glasses."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Shift Manager",
+          "text": "Resolve complaints immediately (free remake for wrong taste; adjust AC/music)."
+        }
+      ],
+      "backstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Floor Staff",
+          "text": "Wash, sanitize, and dry collected glassware/mugs and return to bar racks."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Floor Staff",
+          "text": "Inspect & clean restrooms, restock tissue/soap every 45–60 min."
+        },
+        {
+          "step": "Step 3",
+          "actor": "Shift Manager",
+          "text": "Monitor Wi-Fi bandwidth, AC temperature, and music volume by occupancy."
+        }
+      ],
+      "support": [
+        {
+          "actor": "System",
+          "text": "Business fiber internet + load-balanced Mesh Wi-Fi, HVAC & audio system, hygiene & restroom checklist."
+        }
+      ],
+      "failPoint": "Wi-Fi drops when >40 devices connect; dirty restroom or out of tissue; unbussed tables left for next guest.",
+      "mitigation": "Deploy high-density Mesh Wi-Fi with short DHCP leases; sign hourly restroom checklists; assign dedicated floor runner.",
+      "inventoryMapping": [
+        {
+          "actor": "Floor Staff",
+          "action": "Serve iced tea & bus tables",
+          "items": [
+            "Free iced tea/water dispenser + cups",
+            "Bussing trays",
+            "Table sanitizer spray & dedicated cloths",
+            "Sorted trash bins & liners"
+          ]
+        },
+        {
+          "actor": "Floor Staff",
+          "action": "Wash glassware & clean restrooms",
+          "items": [
+            "3-compartment sink, dish soap, drying racks",
+            "Toilet paper, hand soap, paper towels",
+            "Air freshener, mop, hourly restroom checklist"
+          ]
+        },
+        {
+          "actor": "Shift Manager",
+          "action": "Maintain ambiance & connectivity",
+          "items": [
+            "AC units & remotes",
+            "Audio speakers & licensed playlist",
+            "Enterprise Wi-Fi routers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "code": "S7",
+      "name": "7. Departure & Post-Service",
+      "en": "Exit & Retention",
+      "goal": "Retrieve motorbike quickly without waiting, leave satisfied, and feel motivated to return.",
+      "timeOffPeak": "1 – 2 min",
+      "timePeak": "3 – 6 min",
+      "maxOff": 2,
+      "maxPeak": 6,
+      "isStayPhase": false,
+      "isBottleneck": true,
+      "physicalEvidence": [
+        "Exit Door",
+        "Self-Bussing Station (if any)",
+        "Parking Lot & Returned Card"
+      ],
+      "digitalEvidence": [
+        "Zalo OA Thank-You & Points Message",
+        "Return-Visit Voucher",
+        "Google Maps Review Page"
+      ],
+      "customerFlows": [
+        {
+          "label": null,
+          "connectorBefore": null,
+          "color": "primary",
+          "steps": [
+            {
+              "num": 1,
+              "text": "Pack laptop/belongings, leave table (drop tray at bussing station if applicable), and exit."
+            },
+            {
+              "num": 2,
+              "text": "Hand parking card to security, retrieve motorbike, and depart."
+            },
+            {
+              "num": 3,
+              "text": "(Post-visit) Receive loyalty points/voucher on Zalo OA; optionally post a Google review."
+            }
+          ]
+        }
+      ],
+      "frontstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Cashier",
+          "text": "Thank customer warmly and say goodbye as they pass the counter."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Security",
+          "text": "Collect parking card, turn motorbike facing street, and assist merging into traffic."
+        }
+      ],
+      "backstageSteps": [
+        {
+          "step": "Step 1",
+          "actor": "Floor Staff",
+          "text": "Clear remaining items, sanitize table, and reset chairs in <2 min for next guest."
+        },
+        {
+          "step": "Step 2",
+          "actor": "Shift Manager",
+          "text": "(End of shift) Close POS register, reconcile cash/QR transfers, count inventory, and order next-day stock."
+        }
+      ],
+      "support": [
+        {
+          "actor": "System",
+          "text": "CRM auto-sends thank-you + loyalty points + voucher via Zalo OA; daily sales & inventory report."
+        }
+      ],
+      "failPoint": "Motorbike trapped 3–4 rows deep forces a 5–6 min wait in the sun; tables left dirty after peak.",
+      "mitigation": "Maintain clear aisles between bike rows; use walkie-talkie for basement lots to pull bikes ahead of time.",
+      "inventoryMapping": [
+        {
+          "actor": "Security",
+          "action": "Return motorbike & guide exit",
+          "items": [
+            "Parking card collection box",
+            "Whistle & reflective traffic wand (night)"
+          ]
+        },
+        {
+          "actor": "Shift Manager",
+          "action": "Close shift & reorder stock",
+          "items": [
+            "POS end-of-day report",
+            "Inventory count app/sheet",
+            "Cash safe"
+          ]
+        },
+        {
+          "actor": "System",
+          "action": "Drive retention & feedback",
+          "items": [
+            "CRM / Zalo OA loyalty automation",
+            "CSAT feedback form"
+          ]
+        }
+      ]
+    }
+  ],
+  "inventoryCatalog": [
+    {
+      "item": "Roasted Espresso Beans (Arabica/Blend) & Phin Ground Coffee (Robusta)",
+      "cat": "F&B Consumables",
+      "actor": "Barista",
+      "action": "Pull espresso shots & brew Vietnamese phin coffee",
+      "stage": "S5 • Prep",
+      "cycle": "Order 1–2x/week (FIFO)"
+    },
+    {
+      "item": "Loose Tea Leaves (Black, Oolong, Jasmine, Matcha)",
+      "cat": "F&B Consumables",
+      "actor": "Barista",
+      "action": "Brew tea bases for fruit teas & milk teas",
+      "stage": "S5 • Prep",
+      "cycle": "Brew fresh every 4–6 hrs; weekly order"
+    },
+    {
+      "item": "Purified Ice Cubes (Standard & Crushed)",
+      "cat": "F&B Consumables",
+      "actor": "Barista",
+      "action": "Make iced drinks, blended drinks & free iced tea",
+      "stage": "S5, S6 • Prep & Stay",
+      "cycle": "Daily delivery (1–2 drops/day)"
+    },
+    {
+      "item": "Sweetened Condensed Milk, Fresh Milk, Oat Milk & Cream",
+      "cat": "F&B Consumables",
+      "actor": "Barista",
+      "action": "Craft Bac Xiu, Ca Phe Sua Da, lattes & milk teas",
+      "stage": "S5 • Prep",
+      "cycle": "Restock every 1–2 days (2–4°C)"
+    },
+    {
+      "item": "Syrups, Fruit Jams, Sugar Syrup & Fresh Fruit",
+      "cat": "F&B Consumables",
+      "actor": "Barista",
+      "action": "Prepare fruit teas, sodas & seasonal specials",
+      "stage": "S5 • Prep",
+      "cycle": "Daily fresh fruit; weekly syrups"
+    },
+    {
+      "item": "Prepped Toppings (Boba, Jelly, Cheese Foam, Flan)",
+      "cat": "F&B Consumables",
+      "actor": "Barista",
+      "action": "Add custom toppings per order",
+      "stage": "S5 • Prep",
+      "cycle": "Cook fresh each shift; 4–8 hr shelf-life label"
+    },
+    {
+      "item": "Display Pastries (Croissant, Tiramisu, Salted Egg Sponge)",
+      "cat": "F&B Consumables",
+      "actor": "Cashier",
+      "action": "Display in chiller, upsell & serve with drinks",
+      "stage": "S3, S5 • Order & Pickup",
+      "cycle": "Daily morning delivery"
+    },
+    {
+      "item": "Espresso Machine (2-Group), Bean Grinder & Commercial Blender",
+      "cat": "Bar Equipment",
+      "actor": "Barista",
+      "action": "Grind, extract espresso & blend iced drinks",
+      "stage": "S5 • Prep",
+      "cycle": "Fixed asset; daily clean, quarterly service"
+    },
+    {
+      "item": "Under-Counter Fridge, Freezer & Insulated Ice Bin",
+      "cat": "Bar Equipment",
+      "actor": "Barista",
+      "action": "Keep milk, toppings & ice within arm's reach",
+      "stage": "S5 • Prep",
+      "cycle": "Fixed; log temp at open/close"
+    },
+    {
+      "item": "Bar Tools (Phin, Tea Dispensers, Shakers, Jiggers, Scales, Oven)",
+      "cat": "Bar Equipment",
+      "actor": "Barista",
+      "action": "Measure accurately per SOP & warm pastries",
+      "stage": "S5 • Prep",
+      "cycle": "Fixed; sanitize every shift"
+    },
+    {
+      "item": "Glassware, Ceramic Mugs, Saucers, Coasters & Serving Trays",
+      "cat": "Packaging & Serving",
+      "actor": "Barista",
+      "action": "Serve Dine-in beverages & pastries",
+      "stage": "S5, S6 • Pickup & Stay",
+      "cycle": "Wash/rotate continuously; replace breakage"
+    },
+    {
+      "item": "PET/PP Cold Cups, Hot Paper Cups + Sleeves, Lids, Straws & T-Bags",
+      "cat": "Packaging & Serving",
+      "actor": "Barista",
+      "action": "Package spill-proof Take-away orders",
+      "stage": "S5 • Prep & Pickup",
+      "cycle": "Daily count; weekly reorder"
+    },
+    {
+      "item": "Free Iced Tea Dispenser + Small Cups & Condiment Supplies",
+      "cat": "Packaging & Serving",
+      "actor": "Floor Staff",
+      "action": "Keep complimentary tea & condiment bar stocked",
+      "stage": "S5, S6 • Pickup & Stay",
+      "cycle": "Refill every 30–60 min"
+    },
+    {
+      "item": "Parking Cards/Tickets, Chalk, Seat Sun-Covers & Large Umbrellas",
+      "cat": "Parking & Space",
+      "actor": "Security",
+      "action": "Manage motorbikes & protect guests in sun/rain",
+      "stage": "S2, S7 • Arrival & Exit",
+      "cycle": "Count cards per shift; replace worn items"
+    },
+    {
+      "item": "Zoned Tables/Chairs, Power Outlets & Restroom Hygiene Supplies",
+      "cat": "Parking & Space",
+      "actor": "Floor Staff",
+      "action": "Support laptop work & keep space/restrooms spotless",
+      "stage": "S4, S6 • Seating & Stay",
+      "cycle": "Check restrooms every 45–60 min"
+    },
+    {
+      "item": "POS Terminal + Customer Screen, Receipt/Label Printers & Paper Rolls",
+      "cat": "IT / POS & Ops",
+      "actor": "Cashier",
+      "action": "Take orders, print receipts (Wi-Fi pass) & bar labels",
+      "stage": "S3–S5 • Order to Prep",
+      "cycle": "Keep 5–10 spare paper/label rolls"
+    },
+    {
+      "item": "Cash Drawer + Opening Float, Dynamic VietQR, Audio Box & mPOS",
+      "cat": "IT / POS & Ops",
+      "actor": "Cashier",
+      "action": "Verify instant digital payments & give fast cash change",
+      "stage": "S4 • Payment",
+      "cycle": "Fixed daily cash float; nightly device charge"
+    },
+    {
+      "item": "16–20 Vibration Pager Set + Charging Dock",
+      "cat": "IT / POS & Ops",
+      "actor": "Cashier",
+      "action": "Alert customers when drinks are ready for pickup",
+      "stage": "S4, S5 • Payment & Pickup",
+      "cycle": "Sanitize & dock continuously"
+    },
+    {
+      "item": "Business Fiber + High-Density Mesh Wi-Fi, Walkie-Talkies & CCTV",
+      "cat": "IT / POS & Ops",
+      "actor": "Shift Manager",
+      "action": "Keep WFH Wi-Fi stable & coordinate multi-floor staff",
+      "stage": "S2–S7 • End-to-End",
+      "cycle": "Continuous monitoring; 4G backup for POS"
+    }
+  ],
+  "failPoints": [
+    {
+      "stage": "S2 • Parking",
+      "title": "Peak-hour parking overflow & heavy rain",
+      "impact": "Customers leave before even entering the shop.",
+      "fix": "Keep take-away lane upfront; partner with nearby overflow lot; stock 3–4 large umbrellas."
+    },
+    {
+      "stage": "S3–S4 • Checkout",
+      "title": "Morning queue jam & fake transfer screenshots",
+      "impact": "Rushed office workers abandon queue; revenue leakage.",
+      "fix": "POS-linked dynamic VietQR + instant audio confirmation box; tablet queue-busting when >5 guests."
+    },
+    {
+      "stage": "S5 • Bar (Bottleneck #1)",
+      "title": "In-store orders buried under Delivery App rush",
+      "impact": "Wait times spike to 12–15+ min, hurting satisfaction.",
+      "fix": "Split 2 Baristas at peak (hot vs. cold) and throttle concurrent delivery orders during rush."
+    },
+    {
+      "stage": "S6 • In-Store Stay",
+      "title": "Wi-Fi drops, scarce outlets & dirty restrooms",
+      "impact": "High-value work/study regulars do not return.",
+      "fix": "High-density Mesh Wi-Fi (60–100 devices); wall power strips; signed hourly restroom checklists."
+    },
+    {
+      "stage": "S5–S6 • Backstage",
+      "title": "Running out of purified ice or fresh milk mid-shift",
+      "impact": "Best-selling iced drinks go out of stock.",
+      "fix": "Set POS par-level alerts; contract 2 ice drops/day (early morning & early afternoon)."
+    }
+  ]
+};
+    /* === BLUEPRINT_DATA_END === */
+
+    const D = BLUEPRINT_DATA;
+    const STAGES = D.stages || [];
+    const ACTORS = D.actors || [];
+    const INVENTORY_CATALOG = D.inventoryCatalog || [];
+    const FAIL_POINTS = D.failPoints || [];
+
+    let state = {
+      activeTab: "blueprint",
+      mode: "offpeak",
+      actorFilter: "all",
+      showFailPoints: false,
+      selectedStageId: STAGES.length ? STAGES[0].id : 1
+    };
+
+    function esc(str) {
+      return String(str == null ? "" : str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function colorClass(code) {
+      const allowed = ["primary", "success", "warning", "error", "c1", "c2", "c3", "c4", "c5", "c6"];
+      return "tint-" + (allowed.includes(code) ? code : "c6");
+    }
+
+    function actorBadgeClass(actorName) {
+      const lower = String(actorName || "").toLowerCase();
+      const found = ACTORS.find(a => lower.includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(lower));
+      return found ? colorClass(found.color) : "tint-c6";
+    }
+
+    function matchesActor(actorName) {
+      if (state.actorFilter === "all") return true;
+      return String(actorName || "").toLowerCase().includes(state.actorFilter.toLowerCase());
+    }
+
+    function initStaticUI() {
+      document.title = D.title || "Service Design Blueprint";
+      document.getElementById("meta-title").textContent = D.title || "Service Design Blueprint";
+      document.getElementById("meta-subtitle").textContent = D.subtitle || "";
+      document.getElementById("meta-model").textContent = "Business Model: " + (D.businessModel || "—");
+      document.getElementById("meta-location").textContent = "Location: " + (D.location || "—");
+      document.getElementById("btn-offpeak").textContent = D.offPeakLabel || "Giờ thường";
+      document.getElementById("btn-peak").textContent = D.peakLabel || "Giờ cao điểm";
+
+      const actorFilter = document.getElementById("actor-filter");
+      actorFilter.innerHTML = `<option value="all">All Actors</option>` +
+        ACTORS.map(a => `<option value="${esc(a.name)}">${esc(a.label || a.name)}</option>`).join("");
+
+      const cats = Array.from(new Set(INVENTORY_CATALOG.map(r => r.cat).filter(Boolean)));
+      document.getElementById("inv-cat").innerHTML = `<option value="all">All Categories</option>` +
+        cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+
+      const invActors = Array.from(new Set(INVENTORY_CATALOG.map(r => r.actor).filter(Boolean)));
+      document.getElementById("inv-actor").innerHTML = `<option value="all">All Actors</option>` +
+        invActors.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join("");
+
+      document.getElementById("time-subtitle").textContent =
+        `Comparing operational & wait durations between ${D.offPeakLabel || "Giờ thường"} vs. ${D.peakLabel || "Giờ cao điểm"}.`;
+
+      document.getElementById("bar-legend").innerHTML = `
+        <span class="legend-item"><span class="swatch" style="background:var(--primary)"></span> ${esc(D.offPeakLabel || "Giờ thường")}</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--warning-bar)"></span> ${esc(D.peakLabel || "Giờ cao điểm")}${D.peakDescription ? " (" + esc(D.peakDescription) + ")" : ""}</span>
+      `;
+    }
+
+    function renderKPIs() {
+      const kpis = D.kpis || [];
+      document.getElementById("kpi-grid").innerHTML = kpis.map(k => {
+        const val = state.mode === "offpeak" ? (k.valueOffPeak || "") : (k.valuePeak || k.valueOffPeak || "");
+        let cls = "kpi-val";
+        if (k.accent === "dynamic") {
+          cls += state.mode === "offpeak" ? " is-primary" : " is-warning";
+        } else if (k.accent === "primary") {
+          cls += " is-primary";
+        } else if (k.accent === "warning") {
+          cls += " is-warning";
+        }
+        return `<div class="kpi-box">
+          <div class="kpi-label">${esc(k.label)}</div>
+          <div class="${cls}">${esc(val)}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderCustomerFlowCell(stage) {
+      const flows = stage.customerFlows || [];
+      return flows.map(flow => {
+        const sep = flow.connectorBefore
+          ? `<div class="branch-sep">
+               <div class="branch-sep-line"></div>
+               <span class="branch-sep-text ${flow.connectorBefore.includes("↓") ? "is-branch" : ""}">${esc(flow.connectorBefore)}</span>
+               <div class="branch-sep-line"></div>
+             </div>`
+          : "";
+
+        const head = flow.label
+          ? `<div class="scenario-head"><span class="scenario-pill ${colorClass(flow.color || "c4")}">${esc(flow.label)}</span></div>`
+          : "";
+
+        const stepsHtml = (flow.steps || []).map((st, idx, arr) => `
+          <div class="step-card">
+            <span class="step-tag">Step ${esc(st.num)}</span>
+            <span>${esc(st.text)}</span>
+          </div>
+          ${idx < arr.length - 1 ? '<div class="step-arrow">↓</div>' : ""}
+        `).join("");
+
+        return `${sep}<div class="${flow.label ? "scenario-box" : ""}">${head}${stepsHtml}</div>`;
+      }).join("");
+    }
+
+    function renderActorStepList(steps, isBackstage) {
+      const list = steps || [];
+      if (!list.length) return `<span class="empty-note">—</span>`;
+      return list.map((item, idx) => {
+        const cls = matchesActor(item.actor) ? "highlighted" : "dimmed";
+        return `
+          <div class="step-card ${isBackstage ? "" : "is-white"} ${cls}">
+            <div class="actor-head">
+              <span class="step-tag-muted">${esc(item.step)}</span>
+              <span class="actor-badge ${actorBadgeClass(item.actor)}">${esc(item.actor)}</span>
+            </div>
+            <p class="step-text">${esc(item.text)}</p>
+          </div>
+          ${idx < list.length - 1 ? '<div class="step-arrow">↓</div>' : ""}
+        `;
+      }).join("");
+    }
+
+    function renderBlueprint() {
+      const grid = document.getElementById("blueprint-grid");
+      const colsStyle = `grid-template-columns: 175px repeat(${STAGES.length}, minmax(195px, 1fr));`;
+      const selCls = id => (id === state.selectedStageId ? "stage-col-selected" : "");
+
+      // Row 1: Stage & Duration
+      let html = `<div class="bp-row bp-row-border-strong bp-row-header" style="${colsStyle}">
+        <div class="lane-label bg-header">
+          <span>Stage</span>
+          <span class="lane-sub">&amp; Duration</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const dur = state.mode === "offpeak" ? s.timeOffPeak : s.timePeak;
+        const isPeakHot = state.mode === "peak" && s.isBottleneck;
+        const failRing = (state.showFailPoints && s.isBottleneck) ? "fail-ring" : "";
+        html += `
+          <button onclick="selectStage(${s.id})" class="stage-head-btn ${selCls(s.id)} ${failRing}">
+            <div class="stage-head-top">
+              <span class="stage-code">${esc(s.code)}</span>
+              <span class="dur-badge ${isPeakHot ? "is-peak-hot" : ""}">${esc(dur)}</span>
+            </div>
+            <div class="stage-name">${esc(String(s.name || "").replace(/^\d+\.\s*/, ""))}</div>
+            <div class="stage-en">${esc(s.en || "")}</div>
+          </button>`;
+      });
+      html += `</div>`;
+
+      // Row 2: Physical Evidence (Neutral Chips)
+      html += `<div class="bp-row bp-row-border" style="${colsStyle}">
+        <div class="lane-label">
+          <span class="lane-title-flex"><span class="dot dot-physical"></span> Physical Evidence</span>
+          <span class="lane-sub">Tangible touchpoints</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const list = s.physicalEvidence || [];
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${list.length
+            ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>`
+            : `<span class="empty-note">— (No direct physical evidence)</span>`}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 3: Digital Evidence (Unified Neutral Chips — Option 1)
+      html += `<div class="bp-row bp-row-border-strong" style="${colsStyle}">
+        <div class="lane-label">
+          <span class="lane-title-flex"><span class="dot dot-digital"></span> Digital Evidence</span>
+          <span class="lane-sub">Digital touchpoints</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const list = s.digitalEvidence || [];
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${list.length
+            ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>`
+            : `<span class="empty-note">— (No direct digital touchpoint)</span>`}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 4: Customer Goal (Directly above Customer Actions)
+      html += `<div class="bp-row bp-row-border bp-row-subtle" style="${colsStyle}">
+        <div class="lane-label bg-subtle">
+          <span style="color:var(--primary)">Customer Goal</span>
+          <span class="lane-sub">Drives customer actions ↓</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          <div class="goal-cell-inner">
+            <div class="goal-box">${esc(s.goal)}</div>
+            <div class="goal-arrow">↓</div>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 5: Customer Actions (Step Flow + Explicit Scenarios)
+      html += `<div class="bp-row" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Customer Actions</span>
+          <span class="lane-sub">Step Flow by Scenario</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${renderCustomerFlowCell(s)}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Line of Interaction
+      html += `<div class="bp-divider line-interaction">▼ Line of Interaction — Direct Customer ↔ Frontstage Interaction</div>`;
+
+      // Row 6: Frontstage Actions
+      html += `<div class="bp-row" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Frontstage Actions</span>
+          <span class="lane-sub">Visible staff steps</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${renderActorStepList(s.frontstageSteps, false)}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Line of Visibility
+      html += `<div class="bp-divider line-visibility">▼ Line of Visibility — Invisible to Customer Below This Line</div>`;
+
+      // Row 7: Backstage Actions
+      html += `<div class="bp-row" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Backstage Actions</span>
+          <span class="lane-sub">Behind-the-scenes steps</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const failRing = (state.showFailPoints && s.isBottleneck) ? "fail-ring" : "";
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)} ${failRing}">
+          ${renderActorStepList(s.backstageSteps, true)}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Line of Internal Interaction
+      html += `<div class="bp-divider line-internal">▼ Line of Internal Interaction — Internal Systems, Supply Chain &amp; Partners</div>`;
+
+      // Row 8: Support Processes
+      html += `<div class="bp-row bp-row-border" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Support Processes</span>
+          <span class="lane-sub">IT, Supply Chain &amp; Ops</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          <div class="support-stack">
+            ${(s.support || []).map(item => {
+              const cls = matchesActor(item.actor) ? "highlighted" : "dimmed";
+              return `<div class="step-card is-white ${cls}">
+                <div style="margin-bottom:4px;"><span class="actor-badge ${actorBadgeClass(item.actor)}">${esc(item.actor)}</span></div>
+                <div>${esc(item.text)}</div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 9: Inventory Preview
+      html += `<div class="bp-row bp-row-subtle" style="${colsStyle}">
+        <div class="lane-label bg-subtle">
+          <span>Required Inventory</span>
+          <span class="lane-sub">Click column for full list</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const allItems = (s.inventoryMapping || []).flatMap(m => m.items || []);
+        const preview = allItems.slice(0, 3);
+        const extra = allItems.length - preview.length;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          <div class="chip-wrap">
+            ${preview.map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}
+            ${extra > 0 ? `<span class="actor-badge tint-primary">+${extra} item</span>` : ""}
+          </div>
+          ${state.showFailPoints && s.failPoint ? `<div class="fail-inline-box"><strong>Risk:</strong> ${esc(s.failPoint)}</div>` : ""}
+        </div>`;
+      });
+      html += `</div>`;
+
+      grid.innerHTML = html;
+      renderInspector();
+    }
+
+    function renderInspector() {
+      const idx = STAGES.findIndex(st => st.id === state.selectedStageId);
+      const s = STAGES[idx >= 0 ? idx : 0];
+      if (!s) return;
+      const prevId = STAGES[idx > 0 ? idx - 1 : STAGES.length - 1].id;
+      const nextId = STAGES[idx < STAGES.length - 1 ? idx + 1 : 0].id;
+
+      document.getElementById("stage-inspector").innerHTML = `
+        <div class="inspector-head">
+          <div>
+            <div class="badge-row" style="margin-bottom:0;">
+              <span class="pill tint-primary">${esc(s.code)} • Stage Inspector</span>
+              <span class="muted-xs">${esc(D.offPeakLabel || "Thường")}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> | ${esc(D.peakLabel || "Cao điểm")}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong></span>
+            </div>
+            <h3 class="inspector-title">${esc(s.name)}${s.en ? " (" + esc(s.en) + ")" : ""}</h3>
+          </div>
+          <div class="inspector-nav">
+            <button onclick="selectStage(${prevId})" class="btn-outline">← Previous Stage</button>
+            <button onclick="selectStage(${nextId})" class="btn-outline">Next Stage →</button>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-5 stack-12">
+            <div class="panel-box is-primary">
+              <div class="eyebrow is-primary">Customer Goal at This Stage</div>
+              <div style="font-size:13.5px;">${esc(s.goal)}</div>
+            </div>
+
+            <div class="evidence-pair">
+              <div class="panel-box">
+                <div class="eyebrow"><span class="lane-title-flex"><span class="dot dot-physical"></span> Physical Evidence</span></div>
+                <div class="chip-wrap">
+                  ${(s.physicalEvidence || []).length
+                    ? s.physicalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("")
+                    : '<span class="empty-note">None</span>'}
+                </div>
+              </div>
+              <div class="panel-box">
+                <div class="eyebrow"><span class="lane-title-flex"><span class="dot dot-digital"></span> Digital Evidence</span></div>
+                <div class="chip-wrap">
+                  ${(s.digitalEvidence || []).length
+                    ? s.digitalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("")
+                    : '<span class="empty-note">None</span>'}
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-box is-warning">
+              <div class="eyebrow is-warning">Fail Point (Experience Breakdown Risk)</div>
+              <div style="font-size:12.5px;">${esc(s.failPoint || "—")}</div>
+              ${s.mitigation ? `<div class="mitigation-row"><strong>Design Mitigation:</strong> ${esc(s.mitigation)}</div>` : ""}
+            </div>
+          </div>
+
+          <div class="col-7 stack-10">
+            <div class="eyebrow" style="margin-bottom:0;">Mapping: Actor → Action → Required Inventory Items</div>
+            ${(s.inventoryMapping || []).map(m => `
+              <div class="inv-map-card">
+                <div class="inv-map-head">
+                  <span class="actor-badge ${actorBadgeClass(m.actor)}">${esc(m.actor)}</span>
+                  <span>→ ${esc(m.action)}</span>
+                </div>
+                <div class="chip-wrap">
+                  ${(m.items || []).map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function selectStage(id) {
+      state.selectedStageId = id;
+      renderBlueprint();
+    }
+
+    function renderInventory() {
+      const q = (document.getElementById("inv-search").value || "").toLowerCase().trim();
+      const cat = document.getElementById("inv-cat").value;
+      const actor = document.getElementById("inv-actor").value;
+
+      const filtered = INVENTORY_CATALOG.filter(row => {
+        const matchQ = !q ||
+          String(row.item || "").toLowerCase().includes(q) ||
+          String(row.action || "").toLowerCase().includes(q) ||
+          String(row.stage || "").toLowerCase().includes(q);
+        const matchCat = cat === "all" || row.cat === cat;
+        const matchActor = actor === "all" || String(row.actor || "").includes(actor);
+        return matchQ && matchCat && matchActor;
+      });
+
+      const tbody = document.getElementById("inventory-tbody");
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">No inventory items match your filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(row => `
+        <tr>
+          <td class="td-bold">${esc(row.item)}</td>
+          <td><span class="chip-neutral nowrap">${esc(row.cat)}</span></td>
+          <td><span class="actor-badge ${actorBadgeClass(row.actor)}">${esc(row.actor)}</span></td>
+          <td class="td-muted">${esc(row.action)}</td>
+          <td class="td-bold nowrap">${esc(row.stage)}</td>
+          <td class="td-muted">${esc(row.cycle)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderBottlenecks() {
+      const opStages = STAGES.filter(s => !s.isStayPhase);
+      const maxVal = Math.max(1, ...opStages.map(s => Math.max(Number(s.maxOff) || 0, Number(s.maxPeak) || 0)));
+      const scale = maxVal * 1.08;
+
+      let barsHtml = opStages.map(s => {
+        const offPct = Math.min(100, ((Number(s.maxOff) || 0) / scale) * 100);
+        const peakPct = Math.min(100, ((Number(s.maxPeak) || 0) / scale) * 100);
+        return `
+          <div class="bar-group">
+            <div class="bar-head">
+              <span class="td-bold">
+                ${esc(s.name)}
+                ${s.isBottleneck ? '<span class="actor-badge tint-warning" style="margin-left:6px;">Bottleneck</span>' : ""}
+              </span>
+              <span class="muted-xs" style="font-variant-numeric:tabular-nums;">
+                ${esc(D.offPeakLabel || "Thường")}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> •
+                ${esc(D.peakLabel || "Cao điểm")}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong>
+              </span>
+            </div>
+            <div class="bar-track"><div class="bar-fill-off" style="width:${offPct}%"></div></div>
+            <div class="bar-track"><div class="bar-fill-peak" style="width:${peakPct}%"></div></div>
+          </div>
+        `;
+      }).join("");
+
+      if (D.stayPhaseNote) {
+        barsHtml += `<div class="panel-box" style="font-size:12px;color:var(--muted);">${esc(D.stayPhaseNote)}</div>`;
+      }
+      document.getElementById("time-bars").innerHTML = barsHtml;
+
+      document.getElementById("failpoints-list").innerHTML = FAIL_POINTS.map((fp, idx) => `
+        <div class="fp-card">
+          <div class="fp-head">
+            <span class="fp-title">${idx + 1}. ${esc(fp.title)}</span>
+            <span class="pill tint-warning" style="flex-shrink:0;">${esc(fp.stage)}</span>
+          </div>
+          <div style="color:var(--muted);"><strong style="color:var(--fg);">Impact:</strong> ${esc(fp.impact)}</div>
+          <div style="color:var(--muted);"><strong style="color:var(--success);">Mitigation:</strong> ${esc(fp.fix)}</div>
+        </div>
+      `).join("");
+    }
+
+    // Bind events
+    document.querySelectorAll(".tabs .btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        state.activeTab = btn.dataset.tab;
+        document.querySelectorAll(".tabs .btn").forEach(b => b.classList.toggle("is-active", b.dataset.tab === state.activeTab));
+        document.getElementById("tab-blueprint").classList.toggle("hidden", state.activeTab !== "blueprint");
+        document.getElementById("tab-inventory").classList.toggle("hidden", state.activeTab !== "inventory");
+        document.getElementById("tab-bottlenecks").classList.toggle("hidden", state.activeTab !== "bottlenecks");
+        document.getElementById("blueprint-controls").classList.toggle("hidden", state.activeTab !== "blueprint");
+      });
+    });
+
+    document.getElementById("btn-offpeak").addEventListener("click", () => {
+      state.mode = "offpeak";
+      document.getElementById("btn-offpeak").className = "seg-btn active-offpeak";
+      document.getElementById("btn-peak").className = "seg-btn";
+      renderKPIs();
+      renderBlueprint();
+    });
+
+    document.getElementById("btn-peak").addEventListener("click", () => {
+      state.mode = "peak";
+      document.getElementById("btn-offpeak").className = "seg-btn";
+      document.getElementById("btn-peak").className = "seg-btn active-peak";
+      renderKPIs();
+      renderBlueprint();
+    });
+
+    document.getElementById("actor-filter").addEventListener("change", e => {
+      state.actorFilter = e.target.value;
+      renderBlueprint();
+    });
+
+    document.getElementById("btn-failpoints").addEventListener("click", e => {
+      state.showFailPoints = !state.showFailPoints;
+      e.target.classList.toggle("active-warn", state.showFailPoints);
+      renderBlueprint();
+    });
+
+    document.getElementById("inv-search").addEventListener("input", renderInventory);
+    document.getElementById("inv-cat").addEventListener("change", renderInventory);
+    document.getElementById("inv-actor").addEventListener("change", renderInventory);
+
+    initStaticUI();
+    renderKPIs();
+    renderBlueprint();
+    renderInventory();
+    renderBottlenecks();
+  </script>
+</body>
+</html>
