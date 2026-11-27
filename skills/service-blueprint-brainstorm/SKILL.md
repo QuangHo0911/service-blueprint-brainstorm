@@ -10,6 +10,7 @@ description: >-
   to brainstorm, design, structure, or export a Service Design Blueprint for any
   product, business, or service.
 compatibility: Claude Code, OpenAI Codex, Cursor, Antigravity
+version: "1.0.0"
 license: MIT
 ---
 
