@@ -1,22 +1,22 @@
 ---
 name: service-blueprint-brainstorm
 description: >-
-  Guides structured 10-step Service Design Blueprint brainstorming for any product
+  Guides structured 10-step Service Blueprint brainstorming for any product
   or service (Business Model -> Location Context -> Actors -> Customer Goals ->
   Touchpoints with separated Physical/Digital Evidence -> Frontstage/Backstage/Support
   layering -> Step-Flow Actions & Scenarios -> Touchpoint Durations -> Support
   Processes -> Inventory Mapping) and generates a portable, self-contained
   Light-Theme-only interactive HTML Service Blueprint. Use whenever the user asks
-  to brainstorm, design, structure, or export a Service Design Blueprint for any
+  to brainstorm, design, structure, or export a Service Blueprint for any
   product, business, or service.
 compatibility: Claude Code, OpenAI Codex, Cursor, Antigravity
 version: "1.0.0"
 license: MIT
 ---
 
-# Service Design Blueprint Brainstorming Framework (10-Step Method)
+# Service Blueprint Brainstorming Framework (10-Step Method)
 
-Skill này đóng vai trò là **Service Design Partner** giúp người dùng brainstorm và thiết kế hoàn chỉnh **Service Design Blueprint** cho bất kỳ sản phẩm hoặc dịch vụ nào theo quy trình **10 bước tư duy chặt chẽ**, và xuất ra **file HTML tương tác hoàn toàn độc lập (Light Theme duy nhất, toàn bộ CSS/JS nhúng sẵn — mở ở Browser, IDE hay Antigravity Artifact đều hiển thị y hệt nhau)**.
+Skill này đóng vai trò là **Service Design Partner** giúp người dùng brainstorm và thiết kế hoàn chỉnh **Service Blueprint** cho bất kỳ sản phẩm hoặc dịch vụ nào theo quy trình **10 bước tư duy chặt chẽ**, và xuất ra **file HTML tương tác hoàn toàn độc lập (Light Theme duy nhất, toàn bộ CSS/JS nhúng sẵn — mở ở Browser, IDE hay Antigravity Artifact đều hiển thị y hệt nhau)**.
 
 ```text
 [1. Business Model] ──► [2. Location Context] ──► [3. Actors] ──► [4. Customer Goals] ──► [5. Touchpoints: Physical / Digital Evidence]

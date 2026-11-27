@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "service-blueprint-brainstorm",
-      "description": "10-step Service Design Blueprint brainstorming framework that generates portable, Light-Theme-only interactive HTML blueprints for any product or service.",
+      "description": "10-step Service Blueprint brainstorming framework that generates portable, Light-Theme-only interactive HTML blueprints for any product or service.",
       "author": {
         "name": "QuangHo0911"
       },
