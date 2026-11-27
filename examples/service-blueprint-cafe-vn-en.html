@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Service Blueprint</title>
+  <title>Service Blueprint — Quán Cafe ở Việt Nam</title>
   <style>
     /* ==========================================================================
        Standalone Portable Light-Theme Stylesheet (Zero External CDN Dependencies)
@@ -763,39 +763,37 @@
 
       <div class="header-toolbar">
         <div class="tabs" role="tablist">
-          <button data-tab="blueprint" class="btn is-active">1. Blueprint Matrix</button>
-          <button data-tab="inventory" class="btn">2. Inventory Explorer</button>
-          <button data-tab="bottlenecks" class="btn">3. Time &amp; Bottlenecks (Fail Points)</button>
+          <button id="tab-btn-blueprint" data-tab="blueprint" class="btn is-active"></button>
+          <button id="tab-btn-inventory" data-tab="inventory" class="btn"></button>
+          <button id="tab-btn-bottlenecks" data-tab="bottlenecks" class="btn"></button>
         </div>
 
-        <div id="blueprint-controls" class="controls">
-          <div class="segmented">
-            <button id="btn-offpeak" class="seg-btn active-offpeak"></button>
-            <button id="btn-peak" class="seg-btn"></button>
+        <div class="controls">
+          <div id="blueprint-controls" class="controls">
+            <div class="segmented">
+              <button id="btn-offpeak" class="seg-btn active-offpeak"></button>
+              <button id="btn-peak" class="seg-btn"></button>
+            </div>
+
+            <label class="control-label">
+              <span id="lbl-filter-actor"></span>
+              <select id="actor-filter" class="select"></select>
+            </label>
+
+            <button id="btn-failpoints" class="btn-outline"></button>
           </div>
 
-          <label class="control-label">
-            <span>Filter Actor:</span>
-            <select id="actor-filter" class="select"></select>
-          </label>
-
-          <button id="btn-failpoints" class="btn-outline">Show Fail Points</button>
+          <div class="segmented" aria-label="Language switcher">
+            <button id="btn-lang-vi" class="seg-btn active-offpeak">VI</button>
+            <button id="btn-lang-en" class="seg-btn">EN</button>
+          </div>
         </div>
       </div>
     </header>
 
     <!-- TAB 1: BLUEPRINT MATRIX -->
     <section id="tab-blueprint" class="stack-12">
-      <div class="legend">
-        <div class="legend-items">
-          <span class="legend-item"><span class="dash-sample dash-red"></span> Line of Interaction</span>
-          <span class="legend-item"><span class="dash-sample dash-blue"></span> Line of Visibility</span>
-          <span class="legend-item"><span class="dash-sample dash-purple"></span> Line of Internal Interaction</span>
-          <span class="legend-item"><span class="step-tag" style="margin:0;">Step N</span> Sequential Flow</span>
-          <span class="legend-item"><span class="scenario-pill tint-c4">Scenario / Branch</span> Alternative Branch</span>
-        </div>
-        <span class="legend-hint">Click any Stage column to inspect Action → Inventory below</span>
-      </div>
+      <div id="legend-bar" class="legend"></div>
 
       <div class="card matrix-card">
         <div class="blueprint-scroll">
@@ -811,11 +809,11 @@
       <div class="card card-pad">
         <div class="section-head">
           <div>
-            <h2 class="h2">Inventory Catalog by Actor &amp; Action</h2>
-            <p class="muted-xs">All consumables, equipment, space assets, and IT infrastructure required for each Actor to execute their Step Flow.</p>
+            <h2 id="inv-title" class="h2"></h2>
+            <p id="inv-subtitle" class="muted-xs"></p>
           </div>
           <div class="controls">
-            <input id="inv-search" type="text" class="input" placeholder="Search items, equipment, actions..." />
+            <input id="inv-search" type="text" class="input" />
             <select id="inv-cat" class="select"></select>
             <select id="inv-actor" class="select"></select>
           </div>
@@ -824,14 +822,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Inventory Item</th>
-                <th>Category</th>
-                <th>Actor</th>
-                <th>Supports Action</th>
-                <th>Stage</th>
-                <th>Replenishment / Management</th>
-              </tr>
+              <tr id="inv-thead-row"></tr>
             </thead>
             <tbody id="inventory-tbody"></tbody>
           </table>
@@ -844,7 +835,7 @@
       <div class="grid-12">
         <div class="col-7 card card-pad stack-12">
           <div>
-            <h2 class="h2">Duration Breakdown by Stage</h2>
+            <h2 id="time-title" class="h2"></h2>
             <p id="time-subtitle" class="muted-xs"></p>
           </div>
           <div id="time-bars" class="stack-12"></div>
@@ -853,8 +844,8 @@
 
         <div class="col-5 card card-pad stack-12">
           <div>
-            <h2 class="h2">Key Experience Fail Points</h2>
-            <p class="muted-xs">Highest-risk breakdown points across the blueprint and operational mitigations.</p>
+            <h2 id="fp-title" class="h2"></h2>
+            <p id="fp-subtitle" class="muted-xs"></p>
           </div>
           <div id="failpoints-list" class="stack-10"></div>
         </div>
@@ -863,1090 +854,126 @@
   </div>
 
   <script>
-    /* === BLUEPRINT_DATA_START === */
-    const BLUEPRINT_DATA = {
-  "lang": "en",
-  "title": "Service Blueprint — Vietnamese Urban Coffee Shop",
-  "subtitle": "Context: Urban Vietnamese coffee shop serving Dine-in & Take-away via counter ordering, pager pickup, motorbike parking, and work/social seating. Actions follow sequential Step Flows with explicit Scenario/Branch separation.",
-  "businessModel": "Counter-Service (Dine-in & Take-away)",
-  "location": "Vietnam (Major Urban Area)",
-  "offPeakLabel": "Off-peak",
-  "peakLabel": "Peak Hours",
-  "peakDescription": "7:30–9:30 AM, 12:30–2:00 PM, 7:30–9:30 PM",
-  "timeUnit": "min",
-  "stayPhaseNote": "Stage 6 (Consumption & Stay): 45 – 180 min for Dine-in guests (45–60 min socializing, 2–3 hrs working/studying). Take-away guests skip this stage (0 min).",
-  "kpis": [
-    {
-      "label": "Blueprint Structure",
-      "valueOffPeak": "7 Stages • 9 Lanes",
-      "valuePeak": "7 Stages • 9 Lanes",
-      "accent": "default"
-    },
-    {
-      "label": "Take-away (Total)",
-      "valueOffPeak": "6 – 11 min",
-      "valuePeak": "16 – 30 min",
-      "accent": "dynamic"
-    },
-    {
-      "label": "Dine-in (Total)",
-      "valueOffPeak": "55 – 190 min",
-      "valuePeak": "65 – 155 min",
-      "accent": "default"
-    },
-    {
-      "label": "Actors / Inventory",
-      "valueOffPeak": "7 Actors • 33+ Items",
-      "valuePeak": "7 Actors • 33+ Items",
-      "accent": "default"
-    }
-  ],
-  "actors": [
-    {
-      "name": "Security",
-      "label": "Security / Valet",
-      "color": "c5"
-    },
-    {
-      "name": "Cashier",
-      "label": "Cashier / Order",
-      "color": "c1"
-    },
-    {
-      "name": "Barista",
-      "label": "Barista",
-      "color": "c2"
-    },
-    {
-      "name": "Floor Staff",
-      "label": "Floor Staff / Steward",
-      "color": "c3"
-    },
-    {
-      "name": "Shift Manager",
-      "label": "Shift Manager",
-      "color": "c4"
-    },
-    {
-      "name": "System",
-      "label": "IT / Support Systems",
-      "color": "c6"
-    }
-  ],
-  "stages": [
-    {
-      "id": 1,
-      "code": "S1",
-      "name": "1. Discovery & Decision",
-      "en": "Pre-visit",
-      "goal": "Find a coffee shop that fits the need (nearby, good drinks, suitable for working or socializing, with motorbike parking).",
-      "timeOffPeak": "2 – 5 min",
-      "timePeak": "2 – 5 min",
-      "maxOff": 5,
-      "maxPeak": 5,
-      "isStayPhase": false,
-      "isBottleneck": false,
-      "physicalEvidence": [
-        "Storefront & Signage",
-        "Sidewalk A-Frame Promo Board"
-      ],
-      "digitalEvidence": [
-        "Google Maps (hours, reviews, photos)",
-        "Facebook / TikTok Page",
-        "Online Menu & Zalo OA"
-      ],
-      "customerFlows": [
-        {
-          "label": "Scenario A: Online Search",
-          "connectorBefore": null,
-          "color": "c1",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Search on Google Maps / TikTok; browse ambiance photos & menu prices."
-            },
-            {
-              "num": 2,
-              "text": "Check opening hours, Wi-Fi/outlet reviews, and parking availability."
-            },
-            {
-              "num": 3,
-              "text": "Decide to visit and open turn-by-turn navigation."
-            }
-          ]
-        },
-        {
-          "label": "Scenario B: Walk-in (Passerby)",
-          "connectorBefore": "OR",
-          "color": "c4",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Spot inviting storefront or seasonal A-frame promo board while passing by."
-            },
-            {
-              "num": 2,
-              "text": "Glance at crowd level & parking space, then decide to stop in."
-            }
-          ]
-        }
-      ],
-      "frontstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Cashier",
-          "text": "Inspect storefront cleanliness, place A-frame board, and turn on signage lighting before opening."
-        }
-      ],
-      "backstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Shift Manager",
-          "text": "Update opening hours, seasonal items, and out-of-stock notices on Google Maps & social channels."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Shift Manager",
-          "text": "Monitor and respond to new customer reviews and inquiries."
-        }
-      ],
-      "support": [
-        {
-          "actor": "System",
-          "text": "Google Business Profile, Social Media Marketing, Zalo OA store locator."
-        }
-      ],
-      "failPoint": "Outdated opening hours or unclear parking info on Google Maps causes customers to leave upon arrival.",
-      "mitigation": "Keep Google Maps updated in real time on holidays; post clear parking photos and free-parking policy.",
-      "inventoryMapping": [
-        {
-          "actor": "Shift Manager",
-          "action": "Maintain storefront visibility",
-          "items": [
-            "A-frame sidewalk standee",
-            "Seasonal promo posters",
-            "LED storefront signage"
-          ]
-        },
-        {
-          "actor": "System",
-          "action": "Run digital discovery channels",
-          "items": [
-            "Google Business account",
-            "Updated photo/menu assets",
-            "Zalo OA"
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "code": "S2",
-      "name": "2. Arrival & Parking",
-      "en": "Motorbike Valet",
-      "goal": "Park motorbike quickly and safely without sun/rain hassle, and step into a cool, welcoming shop.",
-      "timeOffPeak": "1 – 2 min",
-      "timePeak": "3 – 5 min",
-      "maxOff": 2,
-      "maxPeak": 5,
-      "isStayPhase": false,
-      "isBottleneck": true,
-      "physicalEvidence": [
-        "Sidewalk / Basement Parking",
-        "Security Booth",
-        "Parking Ticket / Hard Card",
-        "Seat Sun-Cover & Umbrella",
-        "Glass Entrance Door"
-      ],
-      "digitalEvidence": [],
-      "customerFlows": [
-        {
-          "label": null,
-          "connectorBefore": null,
-          "color": "primary",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Pull motorbike into parking zone and turn off engine as directed."
-            },
-            {
-              "num": 2,
-              "text": "Store helmet/belongings and receive parking card from security."
-            },
-            {
-              "num": 3,
-              "text": "Walk from parking area through entrance door into the shop."
-            }
-          ]
-        }
-      ],
-      "frontstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Security",
-          "text": "Direct customer to open slot and assist parking motorbike neatly."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Security",
-          "text": "Mark plate number (if paper ticket) and hand over parking card."
-        },
-        {
-          "step": "Step 3",
-          "actor": "Security",
-          "text": "Place sun-cover on seat (or escort with umbrella in rain) and open door with a greeting."
-        }
-      ],
-      "backstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Security",
-          "text": "Re-arrange rows (keep quick take-away bikes in front, long-stay dine-in bikes inside)."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Shift Manager",
-          "text": "Coordinate overflow partner parking lot nearby when main lot nears capacity."
-        }
-      ],
-      "support": [
-        {
-          "actor": "System",
-          "text": "Parking CCTV surveillance, partner overflow parking agreement, internal walkie-talkies."
-        }
-      ],
-      "failPoint": "Overcrowded parking at peak hours or heavy rain without umbrellas causes walk-away before entering.",
-      "mitigation": "Separate take-away lane upfront; keep 3–4 large umbrellas & spare raincoats ready; use walkie-talkie to alert manager early.",
-      "inventoryMapping": [
-        {
-          "actor": "Security",
-          "action": "Manage & secure motorbikes",
-          "items": [
-            "Hard plastic parking cards / tickets",
-            "Chalk marker",
-            "Whistle & uniform",
-            "Parking CCTV cameras"
-          ]
-        },
-        {
-          "actor": "Security",
-          "action": "Weather & seat protection",
-          "items": [
-            "Seat sun-covers",
-            "Large handheld umbrellas",
-            "Wet raincoat rack at entrance"
-          ]
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "code": "S3",
-      "name": "3. Menu & Ordering",
-      "en": "Counter Discovery",
-      "goal": "Quickly pick drinks tailored to taste (strength, sugar, ice, toppings) and optional pastry.",
-      "timeOffPeak": "1.5 – 3 min",
-      "timePeak": "4 – 8 min",
-      "maxOff": 3,
-      "maxPeak": 8,
-      "isStayPhase": false,
-      "isBottleneck": true,
-      "physicalEvidence": [
-        "Queue Area",
-        "Cashier Counter",
-        "Wall Menu Board & Counter Menu",
-        "Pastry Display Chiller"
-      ],
-      "digitalEvidence": [
-        "Customer-Facing POS Display",
-        "QR Digital Menu (optional)"
-      ],
-      "customerFlows": [
-        {
-          "label": null,
-          "connectorBefore": null,
-          "color": "primary",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Queue at counter, scan wall menu board and pastry display."
-            },
-            {
-              "num": 2,
-              "text": "Ask cashier for best-sellers, less-sweet, or non-caffeine recommendations."
-            },
-            {
-              "num": 3,
-              "text": "Place order (drink, size, sugar/ice level, pastry) and state Dine-in or Take-away."
-            },
-            {
-              "num": 4,
-              "text": "Verify items & modifiers on customer-facing POS screen."
-            }
-          ]
-        }
-      ],
-      "frontstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Cashier",
-          "text": "Greet customer warmly, listen to preferences, and suggest matching drinks."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Cashier",
-          "text": "Enter order & modifiers (sugar/ice/toppings) into POS; suggest size-up or pastry combo."
-        },
-        {
-          "step": "Step 3",
-          "actor": "Cashier",
-          "text": "Read back full order & total amount to confirm accuracy."
-        }
-      ],
-      "backstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Barista",
-          "text": "Proactively notify cashier of low-stock items (86-list) before orders are taken."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Shift Manager",
-          "text": "Open secondary POS or deploy queue-busting tablet when queue exceeds 5 guests."
-        }
-      ],
-      "support": [
-        {
-          "actor": "System",
-          "text": "POS software (iPOS / KiotViet / Sapo) pre-configured with modifiers & upsell combos."
-        }
-      ],
-      "failPoint": "Morning rush queue bottleneck (7:30–9:00 AM) or wrong ice/take-away modifier causing drink remakes.",
-      "mitigation": "Highlight Best-Seller/Signature tags on menu; use customer-facing POS screen for visual confirmation before payment.",
-      "inventoryMapping": [
-        {
-          "actor": "Cashier",
-          "action": "Present menu & pastries",
-          "items": [
-            "Backlit wall menu board",
-            "Counter menu standee",
-            "Glass pastry chiller",
-            "Pastry tongs & trays"
-          ]
-        },
-        {
-          "actor": "Cashier",
-          "action": "Capture accurate orders",
-          "items": [
-            "Touch POS terminal + customer screen",
-            "POS software with recipe modifiers"
-          ]
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "code": "S4",
-      "name": "4. Payment & Seating",
-      "en": "Checkout & Setup",
-      "goal": "Pay smoothly without network friction; quickly secure a seat with power outlet & Wi-Fi (or convenient waiting spot).",
-      "timeOffPeak": "0.5 – 1 min",
-      "timePeak": "1 – 2 min",
-      "maxOff": 1,
-      "maxPeak": 2,
-      "isStayPhase": false,
-      "isBottleneck": false,
-      "physicalEvidence": [
-        "Printed Receipt (with Wi-Fi pass)",
-        "Cash / Card",
-        "Vibration Pager",
-        "Tables, Chairs & Power Outlets"
-      ],
-      "digitalEvidence": [
-        "Dynamic VietQR Code",
-        "Banking App / MoMo Wallet",
-        "Audio Payment Box (TingTing)",
-        "Wi-Fi Network (SSID & Login)"
-      ],
-      "customerFlows": [
-        {
-          "label": "Shared Steps (Checkout)",
-          "connectorBefore": null,
-          "color": "primary",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Scan VietQR / MoMo, tap card, or pay cash; give phone number for loyalty points."
-            },
-            {
-              "num": 2,
-              "text": "Receive receipt (with Wi-Fi password) and vibration pager."
-            }
-          ]
-        },
-        {
-          "label": "Branch A: Dine-in",
-          "connectorBefore": "↓ branch",
-          "color": "c2",
-          "steps": [
-            {
-              "num": 3,
-              "text": "Head to seating floor, pick a table near a power outlet, and connect to Wi-Fi."
-            }
-          ]
-        },
-        {
-          "label": "Branch B: Take-away",
-          "connectorBefore": "OR",
-          "color": "c5",
-          "steps": [
-            {
-              "num": 3,
-              "text": "Move to waiting bench near pick-up counter until pager buzzes."
-            }
-          ]
-        }
-      ],
-      "frontstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Cashier",
-          "text": "Generate dynamic VietQR / tap card / handle cash change; confirm payment via audio box."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Cashier",
-          "text": "Print receipt, hand over pager, and point out Wi-Fi password & open seating floors."
-        },
-        {
-          "step": "Step 3",
-          "actor": "Floor Staff",
-          "text": "Guide guests to freshly wiped open tables during busy hours."
-        }
-      ],
-      "backstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Barista",
-          "text": "Receive auto-printed cup labels & order ticket at bar immediately upon payment."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Shift Manager",
-          "text": "Replenish small cash change or reconcile delayed bank transfer notifications."
-        }
-      ],
-      "support": [
-        {
-          "actor": "System",
-          "text": "Dynamic VietQR gateway + instant audio payment box; CRM loyalty sync; automatic BOM inventory deduction."
-        }
-      ],
-      "failPoint": "Slow banking app / fake transfer screenshots; lack of small change; dead pager battery; no seats with outlets.",
-      "mitigation": "Use POS-linked dynamic VietQR + audio confirmation box; maintain fixed opening cash float; keep pagers docked.",
-      "inventoryMapping": [
-        {
-          "actor": "Cashier",
-          "action": "Process cash & digital payments",
-          "items": [
-            "Cash drawer + opening small-bill float",
-            "Dynamic VietQR display",
-            "Payment audio notification box",
-            "mPOS card reader"
-          ]
-        },
-        {
-          "actor": "Cashier",
-          "action": "Issue receipt & waiting pager",
-          "items": [
-            "Thermal receipt printer + K80 paper rolls",
-            "16–20 pager set with charging dock"
-          ]
-        },
-        {
-          "actor": "Floor Staff",
-          "action": "Provide seating & connectivity",
-          "items": [
-            "Zoned tables/chairs (work & group)",
-            "Wall/floor power outlets",
-            "High-capacity Mesh Wi-Fi"
-          ]
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "code": "S5",
-      "name": "5. Prep & Pickup",
-      "en": "Bar Production",
-      "goal": "Receive accurate, well-presented drinks at the right temperature quickly with all needed accessories.",
-      "timeOffPeak": "3 – 5 min",
-      "timePeak": "8 – 15 min",
-      "maxOff": 5,
-      "maxPeak": 15,
-      "isStayPhase": false,
-      "isBottleneck": true,
-      "physicalEvidence": [
-        "Buzzing/Flashing Pager",
-        "Pick-up & Open Bar Counter",
-        "Cup Order Label",
-        "Serving Tray / Take-away Bag",
-        "Condiment Station (straws, napkins)"
-      ],
-      "digitalEvidence": [],
-      "customerFlows": [
-        {
-          "label": "Shared Steps (Pickup)",
-          "connectorBefore": null,
-          "color": "primary",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Wait at table or bench while bar prepares the order."
-            },
-            {
-              "num": 2,
-              "text": "Hear pager buzz → return pager at pick-up counter and collect tray/bag."
-            },
-            {
-              "num": 3,
-              "text": "Check cup label; grab straws, napkins, or syrup at condiment station."
-            }
-          ]
-        },
-        {
-          "label": "Branch A: Dine-in",
-          "connectorBefore": "↓ branch",
-          "color": "c2",
-          "steps": [
-            {
-              "num": 4,
-              "text": "Carry drink & pastry tray back to chosen table."
-            }
-          ]
-        },
-        {
-          "label": "Branch B: Take-away",
-          "connectorBefore": "OR",
-          "color": "c5",
-          "steps": [
-            {
-              "num": 4,
-              "text": "Check spill-proof lid/bag and walk straight out to parking (jump to S7)."
-            }
-          ]
-        }
-      ],
-      "frontstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Barista",
-          "text": "Trigger pager number as soon as all drinks & pastries in the order are ready."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Barista",
-          "text": "Collect pager, hand over tray/bag with a smile, and thank customer."
-        },
-        {
-          "step": "Step 3",
-          "actor": "Floor Staff",
-          "text": "Proactively help carry trays for large groups, elderly guests, or parents with kids."
-        }
-      ],
-      "backstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Barista",
-          "text": "Read label, stick onto right cup type (glassware vs. take-away), and queue production."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Barista",
-          "text": "Pull espresso / pour tea base / shake / steam milk / add ice & toppings per SOP; warm pastry if requested."
-        },
-        {
-          "step": "Step 3",
-          "actor": "Barista",
-          "text": "Run visual QC (fill level, foam, clean rim) and plate onto tray or seal into take-away bag."
-        },
-        {
-          "step": "Step 4",
-          "actor": "Floor Staff",
-          "text": "Refill bar ice bin, restock cups/lids/straws, and prep fresh topping batches."
-        }
-      ],
-      "support": [
-        {
-          "actor": "System",
-          "text": "Auto cup-label printer, standardized recipe SOPs, RO water filtration, morning prep & shelf-life labeling."
-        }
-      ],
-      "failPoint": "Biggest bottleneck: In-store orders collide with 10–15 GrabFood/ShopeeFood delivery orders at peak, pushing waits to 12–15+ min.",
-      "mitigation": "Split 2 Baristas at peak (hot/espresso vs. cold/tea) or separate delivery queue; pre-batch phin coffee & tea bases.",
-      "inventoryMapping": [
-        {
-          "actor": "Barista",
-          "action": "Craft beverages per SOP",
-          "items": [
-            "Roasted espresso & phin coffee",
-            "Tea leaves (black, oolong, jasmine, matcha)",
-            "Condensed, fresh & oat milk, cream",
-            "Syrups, fruit jams, fresh fruit, toppings",
-            "Purified ice cubes & RO water",
-            "Espresso machine, grinder, blender",
-            "Phin filters, tea dispensers, shakers, scales",
-            "Pastry warming oven"
-          ]
-        },
-        {
-          "actor": "Barista",
-          "action": "Package & hand off orders",
-          "items": [
-            "Label printer & thermal stickers",
-            "Glassware, ceramic mugs, coasters, trays",
-            "PET/PP cold cups, hot paper cups + sleeves",
-            "Lids / cup sealer, T-bags, 2–4 cup carriers"
-          ]
-        },
-        {
-          "actor": "Floor Staff",
-          "action": "Restock condiment station",
-          "items": [
-            "Straws, stirrers, napkins, sugar packets"
-          ]
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "code": "S6",
-      "name": "6. Consumption & Stay",
-      "en": "In-Store Experience",
-      "goal": "Enjoy great-tasting drinks to the last sip; work productively or socialize comfortably in a clean, cool space.",
-      "timeOffPeak": "45 – 180 min",
-      "timePeak": "45 – 120 min",
-      "maxOff": 0,
-      "maxPeak": 0,
-      "isStayPhase": true,
-      "isBottleneck": false,
-      "physicalEvidence": [
-        "Drink Flavor & Ice Melt Rate",
-        "AC Temperature & Music",
-        "Free Iced Tea Dispenser",
-        "Restroom Cleanliness",
-        "Clean Tables & Seating"
-      ],
-      "digitalEvidence": [
-        "Wi-Fi Speed & Stability",
-        "Social Media Check-in / Stories"
-      ],
-      "customerFlows": [
-        {
-          "label": "Branch A: Dine-in",
-          "connectorBefore": null,
-          "color": "c2",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Enjoy drink & pastry (snap aesthetic photos if desired)."
-            },
-            {
-              "num": 2,
-              "text": "Work on laptop, study, or chat; refill complimentary iced tea/water."
-            },
-            {
-              "num": 3,
-              "text": "Use restroom or request assistance (drink remake, AC/Wi-Fi check) if needed."
-            }
-          ]
-        },
-        {
-          "label": "Branch B: Take-away",
-          "connectorBefore": "OR",
-          "color": "c5",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Skip in-store stay (0 min) — proceed directly to S7."
-            }
-          ]
-        }
-      ],
-      "frontstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Floor Staff",
-          "text": "Patrol floors periodically, refill free iced tea, and politely bus empty glasses."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Shift Manager",
-          "text": "Resolve complaints immediately (free remake for wrong taste; adjust AC/music)."
-        }
-      ],
-      "backstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Floor Staff",
-          "text": "Wash, sanitize, and dry collected glassware/mugs and return to bar racks."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Floor Staff",
-          "text": "Inspect & clean restrooms, restock tissue/soap every 45–60 min."
-        },
-        {
-          "step": "Step 3",
-          "actor": "Shift Manager",
-          "text": "Monitor Wi-Fi bandwidth, AC temperature, and music volume by occupancy."
-        }
-      ],
-      "support": [
-        {
-          "actor": "System",
-          "text": "Business fiber internet + load-balanced Mesh Wi-Fi, HVAC & audio system, hygiene & restroom checklist."
-        }
-      ],
-      "failPoint": "Wi-Fi drops when >40 devices connect; dirty restroom or out of tissue; unbussed tables left for next guest.",
-      "mitigation": "Deploy high-density Mesh Wi-Fi with short DHCP leases; sign hourly restroom checklists; assign dedicated floor runner.",
-      "inventoryMapping": [
-        {
-          "actor": "Floor Staff",
-          "action": "Serve iced tea & bus tables",
-          "items": [
-            "Free iced tea/water dispenser + cups",
-            "Bussing trays",
-            "Table sanitizer spray & dedicated cloths",
-            "Sorted trash bins & liners"
-          ]
-        },
-        {
-          "actor": "Floor Staff",
-          "action": "Wash glassware & clean restrooms",
-          "items": [
-            "3-compartment sink, dish soap, drying racks",
-            "Toilet paper, hand soap, paper towels",
-            "Air freshener, mop, hourly restroom checklist"
-          ]
-        },
-        {
-          "actor": "Shift Manager",
-          "action": "Maintain ambiance & connectivity",
-          "items": [
-            "AC units & remotes",
-            "Audio speakers & licensed playlist",
-            "Enterprise Wi-Fi routers"
-          ]
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "code": "S7",
-      "name": "7. Departure & Post-Service",
-      "en": "Exit & Retention",
-      "goal": "Retrieve motorbike quickly without waiting, leave satisfied, and feel motivated to return.",
-      "timeOffPeak": "1 – 2 min",
-      "timePeak": "3 – 6 min",
-      "maxOff": 2,
-      "maxPeak": 6,
-      "isStayPhase": false,
-      "isBottleneck": true,
-      "physicalEvidence": [
-        "Exit Door",
-        "Self-Bussing Station (if any)",
-        "Parking Lot & Returned Card"
-      ],
-      "digitalEvidence": [
-        "Zalo OA Thank-You & Points Message",
-        "Return-Visit Voucher",
-        "Google Maps Review Page"
-      ],
-      "customerFlows": [
-        {
-          "label": null,
-          "connectorBefore": null,
-          "color": "primary",
-          "steps": [
-            {
-              "num": 1,
-              "text": "Pack laptop/belongings, leave table (drop tray at bussing station if applicable), and exit."
-            },
-            {
-              "num": 2,
-              "text": "Hand parking card to security, retrieve motorbike, and depart."
-            },
-            {
-              "num": 3,
-              "text": "(Post-visit) Receive loyalty points/voucher on Zalo OA; optionally post a Google review."
-            }
-          ]
-        }
-      ],
-      "frontstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Cashier",
-          "text": "Thank customer warmly and say goodbye as they pass the counter."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Security",
-          "text": "Collect parking card, turn motorbike facing street, and assist merging into traffic."
-        }
-      ],
-      "backstageSteps": [
-        {
-          "step": "Step 1",
-          "actor": "Floor Staff",
-          "text": "Clear remaining items, sanitize table, and reset chairs in <2 min for next guest."
-        },
-        {
-          "step": "Step 2",
-          "actor": "Shift Manager",
-          "text": "(End of shift) Close POS register, reconcile cash/QR transfers, count inventory, and order next-day stock."
-        }
-      ],
-      "support": [
-        {
-          "actor": "System",
-          "text": "CRM auto-sends thank-you + loyalty points + voucher via Zalo OA; daily sales & inventory report."
-        }
-      ],
-      "failPoint": "Motorbike trapped 3–4 rows deep forces a 5–6 min wait in the sun; tables left dirty after peak.",
-      "mitigation": "Maintain clear aisles between bike rows; use walkie-talkie for basement lots to pull bikes ahead of time.",
-      "inventoryMapping": [
-        {
-          "actor": "Security",
-          "action": "Return motorbike & guide exit",
-          "items": [
-            "Parking card collection box",
-            "Whistle & reflective traffic wand (night)"
-          ]
-        },
-        {
-          "actor": "Shift Manager",
-          "action": "Close shift & reorder stock",
-          "items": [
-            "POS end-of-day report",
-            "Inventory count app/sheet",
-            "Cash safe"
-          ]
-        },
-        {
-          "actor": "System",
-          "action": "Drive retention & feedback",
-          "items": [
-            "CRM / Zalo OA loyalty automation",
-            "CSAT feedback form"
-          ]
-        }
-      ]
-    }
-  ],
-  "inventoryCatalog": [
-    {
-      "item": "Roasted Espresso Beans (Arabica/Blend) & Phin Ground Coffee (Robusta)",
-      "cat": "F&B Consumables",
-      "actor": "Barista",
-      "action": "Pull espresso shots & brew Vietnamese phin coffee",
-      "stage": "S5 • Prep",
-      "cycle": "Order 1–2x/week (FIFO)"
-    },
-    {
-      "item": "Loose Tea Leaves (Black, Oolong, Jasmine, Matcha)",
-      "cat": "F&B Consumables",
-      "actor": "Barista",
-      "action": "Brew tea bases for fruit teas & milk teas",
-      "stage": "S5 • Prep",
-      "cycle": "Brew fresh every 4–6 hrs; weekly order"
-    },
-    {
-      "item": "Purified Ice Cubes (Standard & Crushed)",
-      "cat": "F&B Consumables",
-      "actor": "Barista",
-      "action": "Make iced drinks, blended drinks & free iced tea",
-      "stage": "S5, S6 • Prep & Stay",
-      "cycle": "Daily delivery (1–2 drops/day)"
-    },
-    {
-      "item": "Sweetened Condensed Milk, Fresh Milk, Oat Milk & Cream",
-      "cat": "F&B Consumables",
-      "actor": "Barista",
-      "action": "Craft Bac Xiu, Ca Phe Sua Da, lattes & milk teas",
-      "stage": "S5 • Prep",
-      "cycle": "Restock every 1–2 days (2–4°C)"
-    },
-    {
-      "item": "Syrups, Fruit Jams, Sugar Syrup & Fresh Fruit",
-      "cat": "F&B Consumables",
-      "actor": "Barista",
-      "action": "Prepare fruit teas, sodas & seasonal specials",
-      "stage": "S5 • Prep",
-      "cycle": "Daily fresh fruit; weekly syrups"
-    },
-    {
-      "item": "Prepped Toppings (Boba, Jelly, Cheese Foam, Flan)",
-      "cat": "F&B Consumables",
-      "actor": "Barista",
-      "action": "Add custom toppings per order",
-      "stage": "S5 • Prep",
-      "cycle": "Cook fresh each shift; 4–8 hr shelf-life label"
-    },
-    {
-      "item": "Display Pastries (Croissant, Tiramisu, Salted Egg Sponge)",
-      "cat": "F&B Consumables",
-      "actor": "Cashier",
-      "action": "Display in chiller, upsell & serve with drinks",
-      "stage": "S3, S5 • Order & Pickup",
-      "cycle": "Daily morning delivery"
-    },
-    {
-      "item": "Espresso Machine (2-Group), Bean Grinder & Commercial Blender",
-      "cat": "Bar Equipment",
-      "actor": "Barista",
-      "action": "Grind, extract espresso & blend iced drinks",
-      "stage": "S5 • Prep",
-      "cycle": "Fixed asset; daily clean, quarterly service"
-    },
-    {
-      "item": "Under-Counter Fridge, Freezer & Insulated Ice Bin",
-      "cat": "Bar Equipment",
-      "actor": "Barista",
-      "action": "Keep milk, toppings & ice within arm's reach",
-      "stage": "S5 • Prep",
-      "cycle": "Fixed; log temp at open/close"
-    },
-    {
-      "item": "Bar Tools (Phin, Tea Dispensers, Shakers, Jiggers, Scales, Oven)",
-      "cat": "Bar Equipment",
-      "actor": "Barista",
-      "action": "Measure accurately per SOP & warm pastries",
-      "stage": "S5 • Prep",
-      "cycle": "Fixed; sanitize every shift"
-    },
-    {
-      "item": "Glassware, Ceramic Mugs, Saucers, Coasters & Serving Trays",
-      "cat": "Packaging & Serving",
-      "actor": "Barista",
-      "action": "Serve Dine-in beverages & pastries",
-      "stage": "S5, S6 • Pickup & Stay",
-      "cycle": "Wash/rotate continuously; replace breakage"
-    },
-    {
-      "item": "PET/PP Cold Cups, Hot Paper Cups + Sleeves, Lids, Straws & T-Bags",
-      "cat": "Packaging & Serving",
-      "actor": "Barista",
-      "action": "Package spill-proof Take-away orders",
-      "stage": "S5 • Prep & Pickup",
-      "cycle": "Daily count; weekly reorder"
-    },
-    {
-      "item": "Free Iced Tea Dispenser + Small Cups & Condiment Supplies",
-      "cat": "Packaging & Serving",
-      "actor": "Floor Staff",
-      "action": "Keep complimentary tea & condiment bar stocked",
-      "stage": "S5, S6 • Pickup & Stay",
-      "cycle": "Refill every 30–60 min"
-    },
-    {
-      "item": "Parking Cards/Tickets, Chalk, Seat Sun-Covers & Large Umbrellas",
-      "cat": "Parking & Space",
-      "actor": "Security",
-      "action": "Manage motorbikes & protect guests in sun/rain",
-      "stage": "S2, S7 • Arrival & Exit",
-      "cycle": "Count cards per shift; replace worn items"
-    },
-    {
-      "item": "Zoned Tables/Chairs, Power Outlets & Restroom Hygiene Supplies",
-      "cat": "Parking & Space",
-      "actor": "Floor Staff",
-      "action": "Support laptop work & keep space/restrooms spotless",
-      "stage": "S4, S6 • Seating & Stay",
-      "cycle": "Check restrooms every 45–60 min"
-    },
-    {
-      "item": "POS Terminal + Customer Screen, Receipt/Label Printers & Paper Rolls",
-      "cat": "IT / POS & Ops",
-      "actor": "Cashier",
-      "action": "Take orders, print receipts (Wi-Fi pass) & bar labels",
-      "stage": "S3–S5 • Order to Prep",
-      "cycle": "Keep 5–10 spare paper/label rolls"
-    },
-    {
-      "item": "Cash Drawer + Opening Float, Dynamic VietQR, Audio Box & mPOS",
-      "cat": "IT / POS & Ops",
-      "actor": "Cashier",
-      "action": "Verify instant digital payments & give fast cash change",
-      "stage": "S4 • Payment",
-      "cycle": "Fixed daily cash float; nightly device charge"
-    },
-    {
-      "item": "16–20 Vibration Pager Set + Charging Dock",
-      "cat": "IT / POS & Ops",
-      "actor": "Cashier",
-      "action": "Alert customers when drinks are ready for pickup",
-      "stage": "S4, S5 • Payment & Pickup",
-      "cycle": "Sanitize & dock continuously"
-    },
-    {
-      "item": "Business Fiber + High-Density Mesh Wi-Fi, Walkie-Talkies & CCTV",
-      "cat": "IT / POS & Ops",
-      "actor": "Shift Manager",
-      "action": "Keep WFH Wi-Fi stable & coordinate multi-floor staff",
-      "stage": "S2–S7 • End-to-End",
-      "cycle": "Continuous monitoring; 4G backup for POS"
-    }
-  ],
-  "failPoints": [
-    {
-      "stage": "S2 • Parking",
-      "title": "Peak-hour parking overflow & heavy rain",
-      "impact": "Customers leave before even entering the shop.",
-      "fix": "Keep take-away lane upfront; partner with nearby overflow lot; stock 3–4 large umbrellas."
-    },
-    {
-      "stage": "S3–S4 • Checkout",
-      "title": "Morning queue jam & fake transfer screenshots",
-      "impact": "Rushed office workers abandon queue; revenue leakage.",
-      "fix": "POS-linked dynamic VietQR + instant audio confirmation box; tablet queue-busting when >5 guests."
-    },
-    {
-      "stage": "S5 • Bar (Bottleneck #1)",
-      "title": "In-store orders buried under Delivery App rush",
-      "impact": "Wait times spike to 12–15+ min, hurting satisfaction.",
-      "fix": "Split 2 Baristas at peak (hot vs. cold) and throttle concurrent delivery orders during rush."
-    },
-    {
-      "stage": "S6 • In-Store Stay",
-      "title": "Wi-Fi drops, scarce outlets & dirty restrooms",
-      "impact": "High-value work/study regulars do not return.",
-      "fix": "High-density Mesh Wi-Fi (60–100 devices); wall power strips; signed hourly restroom checklists."
-    },
-    {
-      "stage": "S5–S6 • Backstage",
-      "title": "Running out of purified ice or fresh milk mid-shift",
-      "impact": "Best-selling iced drinks go out of stock.",
-      "fix": "Set POS par-level alerts; contract 2 ice drops/day (early morning & early afternoon)."
-    }
-  ]
-};
-    /* === BLUEPRINT_DATA_END === */
+    const DATASETS = {"vi": {"title": "Service Blueprint — Quán Cafe ở Việt Nam", "subtitle": "Bối cảnh: Quán cafe đô thị phục vụ tại chỗ (Dine-in) & mang đi (Take-away) theo mô hình đặt món tại quầy, nhận nước bằng thẻ rung, có bãi gửi xe máy và không gian ngồi làm việc/tụ tập. Các Action trình bày theo Step Flow tuần tự và tách rõ Scenario/Nhánh.", "businessModel": "Counter-Service (Tại chỗ & Mang đi)", "location": "Việt Nam (Đô thị lớn)", "offPeakLabel": "Giờ thường", "peakLabel": "Giờ cao điểm", "peakDescription": "7h30–9h30, 12h30–14h, 19h30–21h30", "timeUnit": "phút", "stayPhaseNote": "Giai đoạn 6 (Thưởng thức & Ngồi lại): Dao động 45 – 180 phút với khách Dine-in (trò chuyện ~45–60p, làm việc/học bài 2–3 tiếng). Với khách Take-away, giai đoạn này bằng 0 phút.", "kpis": [{"label": "Cấu trúc Blueprint", "valueOffPeak": "7 Stages • 9 Lanes", "valuePeak": "7 Stages • 9 Lanes", "accent": "default"}, {"label": "Take-away (Tổng)", "valueOffPeak": "6 – 11 phút", "valuePeak": "16 – 30 phút", "accent": "dynamic"}, {"label": "Dine-in (Tổng)", "valueOffPeak": "55 – 190 phút", "valuePeak": "65 – 155 phút", "accent": "default"}, {"label": "Actors / Inventory", "valueOffPeak": "7 Actors • 33+ Nhóm", "valuePeak": "7 Actors • 33+ Nhóm", "accent": "default"}], "actors": [{"name": "Bảo vệ", "label": "Bảo vệ / Giữ xe", "color": "c5"}, {"name": "Thu ngân", "label": "Thu ngân / Order", "color": "c1"}, {"name": "Barista", "label": "Barista / Pha chế", "color": "c2"}, {"name": "Phục vụ", "label": "Phục vụ / Tạp vụ", "color": "c3"}, {"name": "Quản lý ca", "label": "Quản lý ca", "color": "c4"}, {"name": "Hệ thống", "label": "Hệ thống / Support", "color": "c6"}], "stages": [{"id": 1, "code": "S1", "name": "1. Tìm hiểu & Quyết định", "en": "Pre-visit / Discovery", "goal": "Chọn được quán phù hợp nhu cầu (gần, đồ uống ngon, đúng mục đích làm việc/tụ tập, có chỗ đậu xe).", "timeOffPeak": "2 – 5 phút", "timePeak": "2 – 5 phút", "maxOff": 5, "maxPeak": 5, "isStayPhase": false, "isBottleneck": false, "physicalEvidence": ["Mặt tiền & Biển hiệu quán", "Bảng Standee chữ A khuyến mãi ngoài cửa"], "digitalEvidence": ["Google Maps (giờ mở, đánh giá, ảnh)", "Fanpage Facebook / TikTok quán", "Menu giá online & Zalo OA"], "customerFlows": [{"label": "Scenario A: Tìm Online", "connectorBefore": null, "color": "c1", "steps": [{"num": 1, "text": "Tìm quán trên Google Maps / TikTok, xem ảnh không gian & menu giá."}, {"num": 2, "text": "Kiểm tra giờ mở cửa, review về Wi-Fi, ổ cắm và chỗ đậu xe."}, {"num": 3, "text": "Chốt chọn quán & mở bản đồ di chuyển tới quán."}]}, {"label": "Scenario B: Walk-in (Đi ngang qua)", "connectorBefore": "hoặc", "color": "c4", "steps": [{"num": 1, "text": "Đi ngang qua thấy mặt tiền bắt mắt hoặc bảng Standee món mới."}, {"num": 2, "text": "Quan sát nhanh độ đông & chỗ đậu xe, quyết định ghé vào."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Thu ngân", "text": "Kiểm tra vệ sinh mặt tiền, đặt bảng Standee chữ A & bật đèn biển hiệu trước giờ mở cửa."}], "backstageSteps": [{"step": "Step 1", "actor": "Quản lý ca", "text": "Cập nhật giờ mở cửa, món mới / món tạm hết lên Google Maps & Fanpage."}, {"step": "Step 2", "actor": "Quản lý ca", "text": "Theo dõi và phản hồi các đánh giá, câu hỏi mới của khách trên kênh số."}], "support": [{"actor": "Hệ thống", "text": "Google Business Profile, Fanpage/TikTok Marketing, Zalo OA định vị cửa hàng."}], "failPoint": "Thông tin giờ mở cửa hoặc tình trạng chỗ đậu xe sai lệch trên Google Maps khiến khách đến nơi phải quay về.", "mitigation": "Cập nhật Google Maps real-time dịp lễ; đăng rõ ảnh bãi xe và chính sách gửi xe miễn phí trên bio/Maps.", "inventoryMapping": [{"actor": "Quản lý ca", "action": "Trưng bày khuyến mãi mặt tiền", "items": ["Bảng Standee chữ A", "Poster món theo mùa", "Đèn biển hiệu LED"]}, {"actor": "Hệ thống", "action": "Vận hành kênh số & định vị", "items": ["Tài khoản Google Business", "Bộ ảnh không gian & menu số", "Zalo OA"]}]}, {"id": 2, "code": "S2", "name": "2. Đến quán & Gửi xe", "en": "Arrival & Parking", "goal": "Đậu xe máy nhanh, an toàn, không lo nắng nóng hay mưa ướt và bước vào quán thoải mái.", "timeOffPeak": "1 – 2 phút", "timePeak": "3 – 5 phút", "maxOff": 2, "maxPeak": 5, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Bãi giữ xe vỉa hè / hầm", "Bốt bảo vệ", "Thẻ giữ xe / vé giấy", "Tấm che yên & Ô che mưa", "Cửa kính ra vào"], "digitalEvidence": [], "customerFlows": [{"label": null, "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Chạy xe máy vào lề/bãi xe, dừng xe tắt máy theo hướng dẫn."}, {"num": 2, "text": "Cất nón bảo hiểm/tư trang và nhận thẻ giữ xe từ bảo vệ."}, {"num": 3, "text": "Di chuyển từ bãi xe qua cửa bước vào bên trong quán."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Bảo vệ", "text": "Ra hiệu hướng dẫn vị trí đậu & hỗ trợ dắt xe gọn vào hàng."}, {"step": "Step 2", "actor": "Bảo vệ", "text": "Ghi biển số (nếu dùng vé giấy) và trao thẻ giữ xe cho khách."}, {"step": "Step 3", "actor": "Bảo vệ", "text": "Che tấm chống nắng lên yên xe (hoặc che dù đưa khách vào cửa khi mưa) và mở cửa chào."}], "backstageSteps": [{"step": "Step 1", "actor": "Bảo vệ", "text": "Sắp xếp lại hàng xe (tách xe take-away ra ngoài cùng, xe ngồi lâu vào trong)."}, {"step": "Step 2", "actor": "Quản lý ca", "text": "Kích hoạt & điều phối sang bãi gửi xe liên kết dự phòng khi bãi chính gần đầy."}], "support": [{"actor": "Hệ thống", "text": "Camera an ninh bãi xe, hợp đồng bãi xe liên kết dự phòng, bộ đàm nội bộ."}], "failPoint": "Kẹt bãi xe giờ cao điểm hoặc trời mưa to không có dù che, bảo vệ thái độ gắt gỏng làm khách bỏ đi ngay từ cửa.", "mitigation": "Tách làn xe Take-away (đậu ngoài cùng) và Dine-in; chuẩn bị sẵn 3–4 dù lớn & áo mưa dự phòng; kết nối bộ đàm với quản lý khi quá tải.", "inventoryMapping": [{"actor": "Bảo vệ", "action": "Điều phối & nhận giữ xe máy", "items": ["Thẻ giữ xe nhựa cứng/vé giấy", "Bút phấn viết biển số", "Còi & áo đồng phục bảo vệ", "Camera giám sát bãi xe"]}, {"actor": "Bảo vệ", "action": "Bảo vệ xe & hỗ trợ thời tiết", "items": ["Tấm bạt/miếng che yên chống nắng", "Ô/dù cầm tay cỡ lớn", "Kệ/rổ đựng áo mưa ướt trước cửa"]}]}, {"id": 3, "code": "S3", "name": "3. Xem Menu & Order", "en": "Menu & Ordering", "goal": "Chọn được đồ uống hợp khẩu vị (độ đậm, đường, đá, topping) và bánh ăn kèm nhanh chóng, đúng ý.", "timeOffPeak": "1.5 – 3 phút", "timePeak": "4 – 8 phút", "maxOff": 3, "maxPeak": 8, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Không gian hàng chờ (Queue)", "Quầy thu ngân", "Menu bảng treo & Menu bàn", "Tủ mát trưng bày bánh ngọt"], "digitalEvidence": ["Màn hình phụ POS hiển thị đơn đang nhập", "QR Menu điện tử (nếu có)"], "customerFlows": [{"label": null, "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Xếp hàng tại quầy, đọc menu bảng treo / menu cầm tay và xem tủ bánh."}, {"num": 2, "text": "Hỏi thu ngân tư vấn món best-seller / ít ngọt / không caffeine (nếu cần)."}, {"num": 3, "text": "Đọc đơn (món, size, mức đường/đá, bánh kèm) và báo Tại chỗ hay Mang đi."}, {"num": 4, "text": "Kiểm tra lại danh sách món & ghi chú trên màn hình phụ POS để xác nhận."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Thu ngân", "text": "Chào khách, lắng nghe nhu cầu & tư vấn món phù hợp."}, {"step": "Step 2", "actor": "Thu ngân", "text": "Nhập đơn & modifier (đường/đá/topping) lên POS; gợi ý upsell size L hoặc combo bánh."}, {"step": "Step 3", "actor": "Thu ngân", "text": "Đọc xác nhận lại toàn bộ đơn hàng + tổng tiền trước khi thanh toán."}], "backstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Báo sớm danh sách món sắp hết nguyên liệu (86-list) cho thu ngân để tránh nhận đơn rồi báo hết."}, {"step": "Step 2", "actor": "Quản lý ca", "text": "Khi hàng chờ > 5 người, mở thêm POS phụ hoặc cử nhân viên cầm tablet nhận order sớm."}], "support": [{"actor": "Hệ thống", "text": "Phần mềm POS (iPOS / KiotViet / Sapo) cấu hình sẵn modifier (đường/đá/topping) & combo upsell."}], "failPoint": "Hàng chờ dồn ứ giờ sáng (7h30–9h) vì khách phân vân lâu; hoặc thu ngân nhập sai ghi chú ít đá/mang đi khiến phải làm lại.", "mitigation": "Thiết kế menu có tag Best-seller/Signature rõ ràng; bật màn hình phụ cho khách tự kiểm tra lại đơn trước khi bấm thanh toán.", "inventoryMapping": [{"actor": "Thu ngân", "action": "Tư vấn & trưng bày sản phẩm", "items": ["Menu bảng đèn treo tường", "Menu cầm tay/Standee món mới", "Tủ mát kính trưng bày bánh", "Kẹp gắp bánh & khay trưng bày"]}, {"actor": "Thu ngân", "action": "Ghi nhận đơn hàng chính xác", "items": ["Máy POS cảm ứng + màn hình phụ", "Phần mềm POS đã nạp công thức & modifier"]}]}, {"id": 4, "code": "S4", "name": "4. Thanh toán & Chọn chỗ", "en": "Payment & Seating", "goal": "Thanh toán gọn lẹ không lỗi mạng; nhanh chóng có chỗ ngồi ưng ý (có ổ cắm, Wi-Fi mạnh) hoặc khu đứng chờ tiện lợi.", "timeOffPeak": "0.5 – 1 phút", "timePeak": "1 – 2 phút", "maxOff": 1, "maxPeak": 2, "isStayPhase": false, "isBottleneck": false, "physicalEvidence": ["Hóa đơn giấy (có in pass Wi-Fi)", "Tiền mặt / Thẻ ngân hàng", "Thẻ rung (Pager)", "Bàn ghế & Ổ cắm điện"], "digitalEvidence": ["Mã VietQR động trên màn hình", "App Ngân hàng / Ví MoMo", "Âm thanh loa TingTing báo tiền vào", "Mạng Wi-Fi (SSID & đăng nhập)"], "customerFlows": [{"label": "Bước chung (Thanh toán)", "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Quét mã VietQR / MoMo, chạm thẻ hoặc trả tiền mặt; đọc SĐT tích điểm."}, {"num": 2, "text": "Nhận hóa đơn (xem pass Wi-Fi) và nhận thẻ rung lấy nước (Pager)."}]}, {"label": "Nhánh A: Tại chỗ (Dine-in)", "connectorBefore": "↓ rẽ nhánh", "color": "c2", "steps": [{"num": 3, "text": "Di chuyển lên lầu/khu ngồi, chọn bàn gần ổ cắm điện & kết nối Wi-Fi."}]}, {"label": "Nhánh B: Mang đi (Take-away)", "connectorBefore": "hoặc", "color": "c5", "steps": [{"num": 3, "text": "Di chuyển sang khu vực ghế chờ gần quầy Pick-up đợi gọi thẻ."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Thu ngân", "text": "Xuất mã VietQR động / quẹt thẻ / nhận & thối tiền mặt; nghe loa TingTing xác nhận tiền vào."}, {"step": "Step 2", "actor": "Thu ngân", "text": "In hóa đơn, trao thẻ rung & chỉ khách vị trí pass Wi-Fi / tầng còn bàn trống."}, {"step": "Step 3", "actor": "Phục vụ", "text": "Hướng dẫn khách đến bàn trống đã lau sạch (khi quán đông)."}], "backstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Nhận bill & tem dán ly tự động in ra tại quầy Bar ngay khi POS hoàn tất thanh toán."}, {"step": "Step 2", "actor": "Quản lý ca", "text": "Đổi thêm tiền lẻ cho két thu ngân hoặc đối soát nhanh giao dịch chuyển khoản bị treo."}], "support": [{"actor": "Hệ thống", "text": "Cổng thanh toán VietQR liên kết ngân hàng + Loa đọc số tiền; CRM tích điểm theo SĐT/Zalo; Trừ kho tự động (BOM)."}], "failPoint": "App ngân hàng lag / khách gửi ảnh chuyển khoản giả; thiếu tiền lẻ thối; thẻ rung hết pin hoặc khách tìm không thấy bàn có ổ cắm.", "mitigation": "Dùng VietQR động tích hợp POS + Loa TingTing báo tiền vào tức thì; chuẩn bị định mức tiền lẻ đầu ca; sạc đầy đế thẻ rung liên tục.", "inventoryMapping": [{"actor": "Thu ngân", "action": "Thu tiền mặt & không tiền mặt", "items": ["Ngăn kéo tiền (Cash drawer)", "Quỹ tiền lẻ đầu ca (1k–50k)", "Bảng/Màn hình VietQR động", "Loa thông báo chuyển khoản", "Máy quẹt thẻ mPOS"]}, {"actor": "Thu ngân", "action": "In bill & phát thiết bị chờ", "items": ["Máy in bill nhiệt + cuộn giấy K80", "Bộ 16–20 thẻ rung (Pager) & đế sạc"]}, {"actor": "Phục vụ", "action": "Chuẩn bị chỗ ngồi & kết nối", "items": ["Bàn ghế phân khu (làm việc/nhóm)", "Ổ cắm điện gắn tường/sàn", "Hệ thống Wi-Fi Mesh đa băng tần"]}]}, {"id": 5, "code": "S5", "name": "5. Chờ pha chế & Nhận đồ", "en": "Preparation & Pickup", "goal": "Nhận đồ uống nhanh, đúng món/nhiệt độ/ghi chú, trình bày đẹp và đủ phụ kiện đi kèm.", "timeOffPeak": "3 – 5 phút", "timePeak": "8 – 15 phút", "maxOff": 5, "maxPeak": 15, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Thẻ rung nháy đèn & bíp", "Quầy Pick-up & Quầy bar mở", "Tem dán món trên ly", "Khay phục vụ / Túi mang đi", "Quầy Condiment (ống hút, giấy, đường)"], "digitalEvidence": [], "customerFlows": [{"label": "Bước chung (Nhận đồ)", "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Ngồi chờ (hoặc đứng đợi take-away) trong lúc quầy bar pha chế."}, {"num": 2, "text": "Nghe thẻ rung báo hiệu → Mang thẻ ra quầy Pick-up trả thẻ & nhận khay/túi đồ."}, {"num": 3, "text": "Kiểm tra tem ly, ghé quầy tự phục vụ lấy ống hút, khăn giấy, đường nước."}]}, {"label": "Nhánh A: Tại chỗ (Dine-in)", "connectorBefore": "↓ rẽ nhánh", "color": "c2", "steps": [{"num": 4, "text": "Mang khay đồ uống & bánh quay lại bàn đã chọn."}]}, {"label": "Nhánh B: Mang đi (Take-away)", "connectorBefore": "hoặc", "color": "c5", "steps": [{"num": 4, "text": "Kiểm tra túi/nắp chống đổ, rời quầy đi thẳng ra bãi xe (chuyển sang S7)."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Bấm gọi số thẻ rung ngay khi hoàn tất đủ đồ uống & bánh của đơn."}, {"step": "Step 2", "actor": "Barista", "text": "Thu lại thẻ rung, mỉm cười trao khay nước (hoặc túi mang đi) và cảm ơn khách."}, {"step": "Step 3", "actor": "Phục vụ", "text": "Hỗ trợ bưng khay ra bàn cho khách đi nhóm đông, lớn tuổi hoặc bế trẻ nhỏ."}], "backstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Đọc tem đơn, dán tem lên đúng loại ly (thủy tinh vs. nhựa/giấy) & xếp thứ tự pha."}, {"step": "Step 2", "actor": "Barista", "text": "Chiết xuất espresso / rót cốt trà / lắc shaker / đánh sữa / thêm đá & topping theo SOP; hâm bánh nếu cần."}, {"step": "Step 3", "actor": "Barista", "text": "QC ngoại quan (độ đầy, lớp foam, sạch miệng ly) & đặt lên khay hoặc ép màng đóng túi."}, {"step": "Step 4", "actor": "Phục vụ", "text": "Châm thêm đá viên vào thùng bar, bổ sung ly/nắp/ống hút và nấu mẻ topping mới."}], "support": [{"actor": "Hệ thống", "text": "Máy in tem dán ly tự động, SOP công thức chuẩn hóa, Hệ thống lọc nước RO, Quy trình sơ chế đầu ca (Prep & Shelf-life)."}], "failPoint": "Nghẽn cổ chai lớn nhất: Đơn tại quán bị dồn chung với 10–15 đơn GrabFood/ShopeeFood giờ cao điểm khiến khách chờ quá 12–15 phút; hoặc hết đá viên/sữa.", "mitigation": "Tách luồng 2 Barista giờ cao điểm (1 máy espresso/nóng, 1 trà/đá xay) hoặc tách kênh Delivery; ủ sẵn cốt cà phê phin & cốt trà định chuẩn.", "inventoryMapping": [{"actor": "Barista", "action": "Pha chế đồ uống theo SOP", "items": ["Cà phê hạt/bột phin, trà các loại", "Sữa đặc, sữa tươi, sữa hạt, kem béo", "Syrup, mứt trái cây, trái cây tươi, topping", "Đá viên tinh khiết & nước lọc RO", "Máy pha Espresso, máy xay hạt, máy xay sinh tố", "Phin pha, bình ủ trà, shaker, jigger, cân tiểu ly", "Lò vi sóng / lò nướng hâm bánh"]}, {"actor": "Barista", "action": "Đóng gói & giao đồ uống", "items": ["Máy in tem & cuộn tem dán ly", "Ly thủy tinh, tách sứ, đế lót ly, khay bưng", "Ly nhựa PET/PP, ly giấy nóng + sleeve", "Nắp ly / máy ép màng, túi chữ T, khay giấy 2–4 ly"]}, {"actor": "Phục vụ", "action": "Duy trì quầy tự phục vụ", "items": ["Ống hút các cỡ, que khuấy, khăn giấy, gói đường"]}]}, {"id": 6, "code": "S6", "name": "6. Thưởng thức & Ngồi lại", "en": "Consumption & Stay", "goal": "Tận hưởng đồ uống ngon đến giọt cuối; làm việc tập trung hoặc trò chuyện thoải mái trong không gian mát, sạch.", "timeOffPeak": "45 – 180 phút", "timePeak": "45 – 120 phút", "maxOff": 0, "maxPeak": 0, "isStayPhase": true, "isBottleneck": false, "physicalEvidence": ["Hương vị đồ uống & độ tan đá", "Nhiệt độ điều hòa & Âm nhạc", "Bình trà đá miễn phí", "Nhà vệ sinh (WC)", "Độ sạch sẽ bàn ghế"], "digitalEvidence": ["Tốc độ & độ ổn định kết nối Wi-Fi", "Bài đăng Story / Check-in mạng xã hội"], "customerFlows": [{"label": "Nhánh A: Tại chỗ (Dine-in)", "connectorBefore": null, "color": "c2", "steps": [{"num": 1, "text": "Thưởng thức đồ uống & bánh (chụp ảnh check-in nếu thích)."}, {"num": 2, "text": "Làm việc laptop / học bài / trò chuyện; lấy hoặc xin thêm trà đá miễn phí."}, {"num": 3, "text": "Sử dụng nhà vệ sinh (WC) hoặc nhờ nhân viên hỗ trợ (đổi món lỗi, chỉnh điều hòa/Wi-Fi) nếu phát sinh."}]}, {"label": "Nhánh B: Mang đi (Take-away)", "connectorBefore": "hoặc", "color": "c5", "steps": [{"num": 1, "text": "Bỏ qua giai đoạn ngồi tại quán (0 phút) — chuyển thẳng sang S7."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Phục vụ", "text": "Đi tuần không gian định kỳ, châm trà đá miễn phí & xin phép thu dọn ly rỗng/giấy rác."}, {"step": "Step 2", "actor": "Quản lý ca", "text": "Tiếp nhận & xử lý ngay phản hồi của khách (làm lại ly mới miễn phí nếu sai vị/nhạt; chỉnh điều hòa/nhạc)."}], "backstageSteps": [{"step": "Step 1", "actor": "Phục vụ", "text": "Rửa & tráng tiệt trùng ly thủy tinh/tách sứ đã thu hồi, lau khô xếp lại giá quầy Bar."}, {"step": "Step 2", "actor": "Phục vụ", "text": "Kiểm tra & vệ sinh WC, bổ sung giấy/xà phòng theo chu kỳ 45–60 phút."}, {"step": "Step 3", "actor": "Quản lý ca", "text": "Theo dõi băng thông Wi-Fi, điều chỉnh âm lượng nhạc & nhiệt độ theo mật độ khách."}], "support": [{"actor": "Hệ thống", "text": "Internet cáp quang doanh nghiệp + Router cân bằng tải, Hệ thống điện-lạnh-âm thanh, Checklist vệ sinh ATTP & WC."}], "failPoint": "Wi-Fi rớt mạng khi quá 40 thiết bị; WC hết giấy/ướt sàn bốc mùi; điều hòa quá lạnh hoặc quá nóng; bàn trước rời đi không ai dọn kịp.", "mitigation": "Cài đặt hệ thống Wi-Fi Mesh chịu tải cao có tự động refresh lease; treo bảng checklist vệ sinh WC ký tên mỗi giờ; bố trí runner trực từng tầng.", "inventoryMapping": [{"actor": "Phục vụ", "action": "Phục vụ trà đá & dọn bàn nhanh", "items": ["Bình trà đá/nước lọc miễn phí + ly nhỏ", "Khay thu dọn ly bẩn", "Bình xịt cồn/lau bàn & khăn lau riêng", "Thùng rác phân loại & túi rác lớn"]}, {"actor": "Phục vụ", "action": "Rửa dụng cụ & vệ sinh WC", "items": ["Bồn rửa 2–3 ngăn, nước rửa chén, giá úp ly", "Giấy vệ sinh, xà phòng rửa tay, khăn giấy lau tay", "Tinh dầu/xịt phòng, dụng cụ lau sàn, bảng checklist WC"]}, {"actor": "Quản lý ca", "action": "Duy trì môi trường trải nghiệm", "items": ["Điều hòa & remote", "Hệ thống loa & playlist nhạc", "Router Wi-Fi doanh nghiệp"]}]}, {"id": 7, "code": "S7", "name": "7. Rời quán & Sau trải nghiệm", "en": "Departure & Post-service", "goal": "Lấy xe nhanh chóng không phải chờ lâu; cảm thấy hài lòng và có động lực quay lại lần sau.", "timeOffPeak": "1 – 2 phút", "timePeak": "3 – 6 phút", "maxOff": 2, "maxPeak": 6, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Cửa ra vào", "Quầy tự thu gom ly (nếu có)", "Bãi giữ xe & Thẻ xe trả lại"], "digitalEvidence": ["Tin nhắn cảm ơn & điểm tích lũy Zalo OA", "Voucher cho lần quay lại", "Trang đánh giá Google Maps / Fanpage"], "customerFlows": [{"label": null, "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Thu dọn laptop/tư trang, rời bàn (mang khay ra quầy thu gom nếu có) và đi ra cửa."}, {"num": 2, "text": "Đưa thẻ giữ xe cho bảo vệ, nhận xe máy và di chuyển rời quán."}, {"num": 3, "text": "(Sau trải nghiệm) Nhận điểm/voucher trên Zalo OA; để lại review Google Maps (tùy chọn)."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Thu ngân", "text": "Cúi đầu cảm ơn và chào tạm biệt khi khách đi ngang cửa."}, {"step": "Step 2", "actor": "Bảo vệ", "text": "Thu lại thẻ xe, dắt xe quay đầu sẵn hướng ra đường & hỗ trợ quan sát giao thông."}], "backstageSteps": [{"step": "Step 1", "actor": "Phục vụ", "text": "Dọn sạch ly còn lại, lau cồn mặt bàn & xếp ghế ngay ngắn (< 2 phút) để đón khách mới."}, {"step": "Step 2", "actor": "Quản lý ca", "text": "(Cuối ca) Đóng ca POS, đối soát tiền mặt & chuyển khoản, kiểm kê tồn kho & đặt hàng hôm sau."}], "support": [{"actor": "Hệ thống", "text": "CRM tự động gửi tin nhắn cảm ơn + điểm tích lũy + mã ưu đãi qua Zalo OA; Báo cáo doanh thu & kho cuối ngày."}], "failPoint": "Xe của khách bị kẹt sâu bên trong 3–4 lớp xe khác khiến khách phải đợi 5–6 phút dưới nắng; hoặc nhân viên quên dọn bàn cũ.", "mitigation": "Bảo vệ sắp xếp chừa lối đi giữa các hàng xe; khách đưa thẻ sớm 1 phút hoặc báo qua bộ đàm cho quán có hầm xe.", "inventoryMapping": [{"actor": "Bảo vệ", "action": "Trả xe & hỗ trợ ra đường", "items": ["Hộp/khay thu hồi thẻ giữ xe", "Còi & gậy phản quang (buổi tối)"]}, {"actor": "Quản lý ca", "action": "Kết ca, đối soát & đặt hàng ngày mai", "items": ["Báo cáo đóng ca POS", "Sổ/App kiểm kê tồn kho cuối ngày", "Két sắt lưu tiền mặt"]}, {"actor": "Hệ thống", "action": "Chăm sóc sau bán & giữ chân khách", "items": ["Hệ thống CRM / Zalo OA gửi điểm & voucher", "Biểu mẫu khảo sát hài lòng (CSAT)"]}]}], "inventoryCatalog": [{"item": "Cà phê hạt rang (Arabica/Blend) & Bột cà phê phin (Robusta)", "cat": "Nguyên liệu F&B", "actor": "Barista", "action": "Chiết xuất Espresso, pha cà phê phin sữa đá", "stage": "S5 • Pha chế", "cycle": "Nhập 1–2 lần/tuần (FIFO)"}, {"item": "Cốt trà lá (Trà đen, Ô long, Trà lài, Matcha)", "cat": "Nguyên liệu F&B", "actor": "Barista", "action": "Ủ cốt trà làm trà trái cây, trà sữa", "stage": "S5 • Pha chế", "cycle": "Ủ mới mỗi 4–6 tiếng; nhập tuần"}, {"item": "Đá viên tinh khiết (Đá bi / Đá mi)", "cat": "Nguyên liệu F&B", "actor": "Barista", "action": "Pha đồ lạnh, xay đá xay, phục vụ trà đá", "stage": "S5, S6 • Pha chế & Ngồi lại", "cycle": "Giao hàng ngày (1–2 chuyến/ngày)"}, {"item": "Sữa đặc có đường, Sữa tươi thanh trùng/tiệt trùng, Sữa hạt", "cat": "Nguyên liệu F&B", "actor": "Barista", "action": "Pha bạc xỉu, cà phê sữa đá, latte, trà sữa", "stage": "S5 • Pha chế", "cycle": "Nhập mỗi 1–2 ngày (bảo quản lạnh 2–4°C)"}, {"item": "Syrup, mứt trái cây, đường nước & trái cây tươi (cam, đào, sả, chanh)", "cat": "Nguyên liệu F&B", "actor": "Barista", "action": "Pha chế trà trái cây, đá xay, soda", "stage": "S5 • Pha chế", "cycle": "Trái cây nhập hàng ngày; syrup theo tuần"}, {"item": "Topping nấu sẵn (Trân châu, thạch, kem cheese, flan)", "cat": "Nguyên liệu F&B", "actor": "Barista", "action": "Thêm topping theo yêu cầu order", "stage": "S5 • Pha chế", "cycle": "Nấu mới đầu ca, dán nhãn hạn 4–8h"}, {"item": "Bánh ngọt trưng bày (Croissant, Tiramisu, Bông lan trứng muối...)", "cat": "Nguyên liệu F&B", "actor": "Thu ngân", "action": "Trưng bày tủ kính, upsell & giao kèm nước", "stage": "S3, S5 • Order & Nhận đồ", "cycle": "Nhập mỗi sáng từ bếp trung tâm/NCC"}, {"item": "Nước tinh khiết qua hệ thống lọc RO", "cat": "Nguyên liệu F&B", "actor": "Barista", "action": "Pha máy espresso, ủ trà, nước lọc cho khách", "stage": "S5, S6 • Pha chế & Ngồi lại", "cycle": "Liên tục; thay lõi lọc mỗi 3–6 tháng"}, {"item": "Máy pha Espresso 2 group & Máy xay hạt (Grinder)", "cat": "Máy móc & Dụng cụ Bar", "actor": "Barista", "action": "Xay hạt & chiết xuất espresso theo chuẩn", "stage": "S5 • Pha chế", "cycle": "Tài sản cố định; vệ sinh cuối ngày, bảo trì quý"}, {"item": "Máy xay sinh tố công nghiệp (Blender) & Bình đun nước nóng", "cat": "Máy móc & Dụng cụ Bar", "actor": "Barista", "action": "Làm món đá xay & cấp nước nóng ủ trà/phin", "stage": "S5 • Pha chế", "cycle": "Tài sản cố định; kiểm tra lưỡi dao hàng tuần"}, {"item": "Tủ mát bàn bar, Tủ đông & Thùng giữ nhiệt đựng đá", "cat": "Máy móc & Dụng cụ Bar", "actor": "Barista", "action": "Bảo quản sữa/topping/đá ngay tầm tay pha chế", "stage": "S5 • Pha chế", "cycle": "Cố định; kiểm tra nhiệt độ đầu/cuối ca"}, {"item": "Dụng cụ Bar (Phin, bình ủ trà, shaker, jigger, cân tiểu ly, ca đánh sữa, tamper)", "cat": "Máy móc & Dụng cụ Bar", "actor": "Barista", "action": "Định lượng chính xác và pha chế theo SOP", "stage": "S5 • Pha chế", "cycle": "Cố định; kiểm đếm & vệ sinh mỗi ca"}, {"item": "Lò vi sóng / Lò nướng mini & Kẹp gắp bánh", "cat": "Máy móc & Dụng cụ Bar", "actor": "Barista", "action": "Hâm nóng bánh ngọt trước khi ra món", "stage": "S5 • Pha chế", "cycle": "Cố định; vệ sinh cuối ngày"}, {"item": "Máy ép miệng ly & Khăn lau bar phân màu (vòi hơi/bàn/ly)", "cat": "Máy móc & Dụng cụ Bar", "actor": "Barista", "action": "Đóng gói đồ mang đi & giữ vệ sinh quầy bar", "stage": "S5 • Pha chế", "cycle": "Thay cuộn màng khi hết; giặt/khử khuẩn khăn hàng ngày"}, {"item": "Ly thủy tinh (size M/L), Tách sứ nóng + đĩa lót, Muỗng inox, Lót ly", "cat": "Bao bì & Phục vụ", "actor": "Barista", "action": "Phục vụ khách uống tại chỗ", "stage": "S5, S6 • Nhận đồ & Thưởng thức", "cycle": "Rửa quay vòng; bổ sung định kỳ do rơi vỡ"}, {"item": "Ly nhựa PET/PP (M/L), Ly giấy nóng + tay cầm chống nóng (Sleeve)", "cat": "Bao bì & Phục vụ", "actor": "Barista", "action": "Đựng đồ uống mang đi (Take-away / Delivery)", "stage": "S5 • Pha chế & Nhận đồ", "cycle": "Kiểm tồn hàng ngày; nhập hàng tuần"}, {"item": "Nắp ly (bằng/cầu/uống trực tiếp), Ống hút, Que khuấy, Túi chữ T, Khay giấy 2–4 ly", "cat": "Bao bì & Phục vụ", "actor": "Barista", "action": "Đóng gói chắc chắn chống đổ & cấp tại quầy tự phục vụ", "stage": "S5 • Nhận đồ", "cycle": "Bổ sung vào quầy mỗi ca; nhập hàng tuần"}, {"item": "Khay bưng nước chống trượt & Khay thu dọn ly bẩn", "cat": "Bao bì & Phục vụ", "actor": "Phục vụ", "action": "Giao đồ uống và thu dọn bàn nhanh", "stage": "S5, S6 • Nhận đồ & Ngồi lại", "cycle": "Cố định; rửa & lau khô liên tục"}, {"item": "Hộp đựng bánh giấy, Dao/Nĩa nhựa hoặc inox, Khăn giấy ăn", "cat": "Bao bì & Phục vụ", "actor": "Thu ngân", "action": "Đóng gói hoặc dọn bánh ngọt cho khách", "stage": "S3, S5 • Order & Nhận đồ", "cycle": "Bổ sung mỗi ca; nhập theo tuần"}, {"item": "Bình đựng trà đá / nước lọc miễn phí + Ly nhỏ tại quầy tự phục vụ", "cat": "Bao bì & Phục vụ", "actor": "Phục vụ", "action": "Châm nước lọc/trà đá cho khách ngồi lâu", "stage": "S6 • Thưởng thức", "cycle": "Châm bổ sung mỗi 30–60 phút"}, {"item": "Thẻ giữ xe nhựa cứng (hoặc vé giấy) & Bút phấn ghi biển số", "cat": "Bãi xe & Không gian", "actor": "Bảo vệ", "action": "Phát thẻ & đối chiếu trả xe chính xác", "stage": "S2, S7 • Gửi & Lấy xe", "cycle": "Kiểm đếm số thẻ đầu/cuối ca"}, {"item": "Tấm che yên xe chống nắng, Ô/dù lớn che mưa, Kệ để áo mưa", "cat": "Bãi xe & Không gian", "actor": "Bảo vệ", "action": "Bảo vệ xe & che mưa cho khách từ bãi xe vào cửa", "stage": "S2, S7 • Gửi & Lấy xe", "cycle": "Kiểm tra hàng ngày, thay khi rách/hỏng"}, {"item": "Còi điều phối, Gậy phản quang, Áo đồng phục bảo vệ, Biển báo bãi xe", "cat": "Bãi xe & Không gian", "actor": "Bảo vệ", "action": "Hướng dẫn xe vào bãi & hỗ trợ khách qua đường", "stage": "S2, S7 • Gửi & Lấy xe", "cycle": "Cố định theo nhân sự trực"}, {"item": "Bảng Standee chữ A, Menu đèn treo, Menu để bàn, Tủ mát kính trưng bày bánh", "cat": "Bãi xe & Không gian", "actor": "Thu ngân", "action": "Thu hút khách từ mặt tiền & giúp khách chọn món nhanh", "stage": "S1, S3 • Trước đến & Order", "cycle": "Cập nhật khi đổi menu/mùa chiến dịch"}, {"item": "Bàn ghế đa dạng (làm việc/nhóm), Ổ cắm điện gắn tường/sàn, Đèn & Cây xanh", "cat": "Bãi xe & Không gian", "actor": "Phục vụ", "action": "Đáp ứng nhu cầu làm việc laptop & tụ tập nhóm", "stage": "S4, S6 • Chọn chỗ & Ngồi lại", "cycle": "Kiểm tra an toàn điện & vệ sinh hàng ngày"}, {"item": "Vật tư vệ sinh & WC (Giấy VS, xà phòng, xịt phòng, nước lau bàn/sàn, túi rác)", "cat": "Bãi xe & Không gian", "actor": "Phục vụ", "action": "Giữ bàn ghế sạch sẽ & nhà vệ sinh thơm tho", "stage": "S6, S7 • Ngồi lại & Rời đi", "cycle": "Kiểm tra mỗi 45–60 phút; nhập theo tuần"}, {"item": "Máy POS cảm ứng + Màn hình phụ cho khách + Máy in bill (giấy K80) + Máy in tem", "cat": "IT / POS & Vận hành", "actor": "Thu ngân", "action": "Nhập đơn, in hóa đơn (kèm pass Wi-Fi) & đẩy tem sang Bar", "stage": "S3, S4, S5 • Order → Pha chế", "cycle": "Luôn trữ sẵn 5–10 cuộn giấy in & tem dự phòng"}, {"item": "Ngăn kéo đựng tiền (Cash drawer) + Quỹ tiền lẻ đầu ca (1k–50k)", "cat": "IT / POS & Vận hành", "actor": "Thu ngân", "action": "Thu tiền mặt & thối tiền nhanh không bị khựng", "stage": "S4 • Thanh toán", "cycle": "Chuẩn bị quỹ tiền lẻ cố định đầu mỗi ngày"}, {"item": "Standee VietQR động, Loa TingTing báo chuyển khoản, Máy quẹt thẻ mPOS", "cat": "IT / POS & Vận hành", "actor": "Thu ngân", "action": "Xác nhận thanh toán không tiền mặt tức thì, chống bill giả", "stage": "S4 • Thanh toán", "cycle": "Sạc pin mPOS/Loa hàng đêm; kiểm kết nối đầu ca"}, {"item": "Bộ 16–20 Thẻ rung (Pager) kèm đế sạc", "cat": "IT / POS & Vận hành", "actor": "Thu ngân", "action": "Thông báo khách ra quầy nhận nước khi pha chế xong", "stage": "S4, S5 • Thanh toán & Nhận đồ", "cycle": "Vệ sinh bề mặt & cắm sạc liên tục sau khi thu lại"}, {"item": "Hệ thống Internet cáp quang + Bộ phát Wi-Fi Mesh chịu tải cao", "cat": "IT / POS & Vận hành", "actor": "Quản lý ca", "action": "Đảm bảo khách WFH kết nối ổn định & POS không rớt mạng", "stage": "S4, S6 • Chọn chỗ & Ngồi lại", "cycle": "Giám sát liên tục; có 4G backup cho POS"}, {"item": "Bộ đàm liên lạc nội bộ (quán nhiều tầng), Camera an ninh, Bình PCCC, Tủ y tế", "cat": "IT / POS & Vận hành", "actor": "Quản lý ca", "action": "Điều phối nhanh giữa Bảo vệ – Thu ngân – Lầu trên & đảm bảo an toàn", "stage": "S2–S7 • Toàn hành trình", "cycle": "Sạc bộ đàm mỗi ca; kiểm định PCCC định kỳ"}, {"item": "Tem dán hạn sử dụng (Date sticker), Sổ/App kiểm kê kho & Két sắt chốt ca", "cat": "IT / POS & Vận hành", "actor": "Quản lý ca", "action": "Kiểm soát chất lượng ATTP, đối soát doanh thu & đặt hàng hôm sau", "stage": "S5, S7 • Hậu trường & Cuối ca", "cycle": "Kiểm kê cuối ngày; dán tem mỗi khi mở nắp/ủ mới"}], "failPoints": [{"stage": "S2 • Gửi xe", "title": "Quá tải bãi xe giờ cao điểm & trời mưa", "impact": "Khách bỏ đi ngay trước khi bước vào quán (mất doanh thu từ bước đầu).", "fix": "Tách xe take-away đậu ngoài cùng; ký bãi gửi xe liên kết dự phòng; luôn có sẵn 3–4 dù lớn & áo mưa bọc yên."}, {"stage": "S3–S4 • Order & Thanh toán", "title": "Nghẽn hàng chờ sáng & lỗi xác nhận chuyển khoản", "impact": "Dân văn phòng vội giờ làm bỏ hàng chờ; rủi ro bill chuyển khoản giả.", "fix": "Dùng VietQR động sinh từ POS + Loa TingTing đọc tiền tự động; bố trí nhân viên cầm tablet nhận order sớm khi hàng > 5 người."}, {"stage": "S5 • Pha chế (Bottleneck #1)", "title": "Đơn tại quán bị kẹt chung với đơn App Delivery", "impact": "Khách chờ 12–15+ phút mới có ly nước, trải nghiệm giảm mạnh.", "fix": "Tách vai Barista giờ cao điểm (máy pha nóng vs. trà/lạnh), giới hạn số đơn Delivery nhận đồng thời hoặc prep sẵn cốt trà/phin."}, {"stage": "S6 • Ngồi lại làm việc", "title": "Wi-Fi chập chờn, thiếu ổ cắm & WC bẩn", "impact": "Nhóm khách ngồi làm việc (chiếm tỷ trọng lớn ở VN) không quay lại lần 2.", "fix": "Lắp Wi-Fi Mesh chịu tải 60–100 thiết bị; bổ sung ổ cắm cố định dọc tường; checklist vệ sinh WC mỗi 45–60 phút có chữ ký."}, {"stage": "S5–S6 • Hậu trường & Kho", "title": "Hết đá viên tinh khiết hoặc sữa tươi giữa ca", "impact": "Phải báo hết món best-seller hoặc tạm dừng phục vụ đồ lạnh.", "fix": "Đặt ngưỡng tồn tối thiểu (Par level) trên POS, ký 2 NCC đá viên giao 2 khung giờ/ngày (sáng sớm & đầu giờ chiều)."}]}, "en": {"lang": "en", "title": "Service Blueprint — Vietnamese Urban Coffee Shop", "subtitle": "Context: Urban Vietnamese coffee shop serving Dine-in & Take-away via counter ordering, pager pickup, motorbike parking, and work/social seating. Actions follow sequential Step Flows with explicit Scenario/Branch separation.", "businessModel": "Counter-Service (Dine-in & Take-away)", "location": "Vietnam (Major Urban Area)", "offPeakLabel": "Off-peak", "peakLabel": "Peak Hours", "peakDescription": "7:30–9:30 AM, 12:30–2:00 PM, 7:30–9:30 PM", "timeUnit": "min", "stayPhaseNote": "Stage 6 (Consumption & Stay): 45 – 180 min for Dine-in guests (45–60 min socializing, 2–3 hrs working/studying). Take-away guests skip this stage (0 min).", "kpis": [{"label": "Blueprint Structure", "valueOffPeak": "7 Stages • 9 Lanes", "valuePeak": "7 Stages • 9 Lanes", "accent": "default"}, {"label": "Take-away (Total)", "valueOffPeak": "6 – 11 min", "valuePeak": "16 – 30 min", "accent": "dynamic"}, {"label": "Dine-in (Total)", "valueOffPeak": "55 – 190 min", "valuePeak": "65 – 155 min", "accent": "default"}, {"label": "Actors / Inventory", "valueOffPeak": "7 Actors • 33+ Items", "valuePeak": "7 Actors • 33+ Items", "accent": "default"}], "actors": [{"name": "Security", "label": "Security / Valet", "color": "c5"}, {"name": "Cashier", "label": "Cashier / Order", "color": "c1"}, {"name": "Barista", "label": "Barista", "color": "c2"}, {"name": "Floor Staff", "label": "Floor Staff / Steward", "color": "c3"}, {"name": "Shift Manager", "label": "Shift Manager", "color": "c4"}, {"name": "System", "label": "IT / Support Systems", "color": "c6"}], "stages": [{"id": 1, "code": "S1", "name": "1. Discovery & Decision", "en": "Pre-visit", "goal": "Find a coffee shop that fits the need (nearby, good drinks, suitable for working or socializing, with motorbike parking).", "timeOffPeak": "2 – 5 min", "timePeak": "2 – 5 min", "maxOff": 5, "maxPeak": 5, "isStayPhase": false, "isBottleneck": false, "physicalEvidence": ["Storefront & Signage", "Sidewalk A-Frame Promo Board"], "digitalEvidence": ["Google Maps (hours, reviews, photos)", "Facebook / TikTok Page", "Online Menu & Zalo OA"], "customerFlows": [{"label": "Scenario A: Online Search", "connectorBefore": null, "color": "c1", "steps": [{"num": 1, "text": "Search on Google Maps / TikTok; browse ambiance photos & menu prices."}, {"num": 2, "text": "Check opening hours, Wi-Fi/outlet reviews, and parking availability."}, {"num": 3, "text": "Decide to visit and open turn-by-turn navigation."}]}, {"label": "Scenario B: Walk-in (Passerby)", "connectorBefore": "OR", "color": "c4", "steps": [{"num": 1, "text": "Spot inviting storefront or seasonal A-frame promo board while passing by."}, {"num": 2, "text": "Glance at crowd level & parking space, then decide to stop in."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Cashier", "text": "Inspect storefront cleanliness, place A-frame board, and turn on signage lighting before opening."}], "backstageSteps": [{"step": "Step 1", "actor": "Shift Manager", "text": "Update opening hours, seasonal items, and out-of-stock notices on Google Maps & social channels."}, {"step": "Step 2", "actor": "Shift Manager", "text": "Monitor and respond to new customer reviews and inquiries."}], "support": [{"actor": "System", "text": "Google Business Profile, Social Media Marketing, Zalo OA store locator."}], "failPoint": "Outdated opening hours or unclear parking info on Google Maps causes customers to leave upon arrival.", "mitigation": "Keep Google Maps updated in real time on holidays; post clear parking photos and free-parking policy.", "inventoryMapping": [{"actor": "Shift Manager", "action": "Maintain storefront visibility", "items": ["A-frame sidewalk standee", "Seasonal promo posters", "LED storefront signage"]}, {"actor": "System", "action": "Run digital discovery channels", "items": ["Google Business account", "Updated photo/menu assets", "Zalo OA"]}]}, {"id": 2, "code": "S2", "name": "2. Arrival & Parking", "en": "Motorbike Valet", "goal": "Park motorbike quickly and safely without sun/rain hassle, and step into a cool, welcoming shop.", "timeOffPeak": "1 – 2 min", "timePeak": "3 – 5 min", "maxOff": 2, "maxPeak": 5, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Sidewalk / Basement Parking", "Security Booth", "Parking Ticket / Hard Card", "Seat Sun-Cover & Umbrella", "Glass Entrance Door"], "digitalEvidence": [], "customerFlows": [{"label": null, "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Pull motorbike into parking zone and turn off engine as directed."}, {"num": 2, "text": "Store helmet/belongings and receive parking card from security."}, {"num": 3, "text": "Walk from parking area through entrance door into the shop."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Security", "text": "Direct customer to open slot and assist parking motorbike neatly."}, {"step": "Step 2", "actor": "Security", "text": "Mark plate number (if paper ticket) and hand over parking card."}, {"step": "Step 3", "actor": "Security", "text": "Place sun-cover on seat (or escort with umbrella in rain) and open door with a greeting."}], "backstageSteps": [{"step": "Step 1", "actor": "Security", "text": "Re-arrange rows (keep quick take-away bikes in front, long-stay dine-in bikes inside)."}, {"step": "Step 2", "actor": "Shift Manager", "text": "Coordinate overflow partner parking lot nearby when main lot nears capacity."}], "support": [{"actor": "System", "text": "Parking CCTV surveillance, partner overflow parking agreement, internal walkie-talkies."}], "failPoint": "Overcrowded parking at peak hours or heavy rain without umbrellas causes walk-away before entering.", "mitigation": "Separate take-away lane upfront; keep 3–4 large umbrellas & spare raincoats ready; use walkie-talkie to alert manager early.", "inventoryMapping": [{"actor": "Security", "action": "Manage & secure motorbikes", "items": ["Hard plastic parking cards / tickets", "Chalk marker", "Whistle & uniform", "Parking CCTV cameras"]}, {"actor": "Security", "action": "Weather & seat protection", "items": ["Seat sun-covers", "Large handheld umbrellas", "Wet raincoat rack at entrance"]}]}, {"id": 3, "code": "S3", "name": "3. Menu & Ordering", "en": "Counter Discovery", "goal": "Quickly pick drinks tailored to taste (strength, sugar, ice, toppings) and optional pastry.", "timeOffPeak": "1.5 – 3 min", "timePeak": "4 – 8 min", "maxOff": 3, "maxPeak": 8, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Queue Area", "Cashier Counter", "Wall Menu Board & Counter Menu", "Pastry Display Chiller"], "digitalEvidence": ["Customer-Facing POS Display", "QR Digital Menu (optional)"], "customerFlows": [{"label": null, "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Queue at counter, scan wall menu board and pastry display."}, {"num": 2, "text": "Ask cashier for best-sellers, less-sweet, or non-caffeine recommendations."}, {"num": 3, "text": "Place order (drink, size, sugar/ice level, pastry) and state Dine-in or Take-away."}, {"num": 4, "text": "Verify items & modifiers on customer-facing POS screen."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Cashier", "text": "Greet customer warmly, listen to preferences, and suggest matching drinks."}, {"step": "Step 2", "actor": "Cashier", "text": "Enter order & modifiers (sugar/ice/toppings) into POS; suggest size-up or pastry combo."}, {"step": "Step 3", "actor": "Cashier", "text": "Read back full order & total amount to confirm accuracy."}], "backstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Proactively notify cashier of low-stock items (86-list) before orders are taken."}, {"step": "Step 2", "actor": "Shift Manager", "text": "Open secondary POS or deploy queue-busting tablet when queue exceeds 5 guests."}], "support": [{"actor": "System", "text": "POS software (iPOS / KiotViet / Sapo) pre-configured with modifiers & upsell combos."}], "failPoint": "Morning rush queue bottleneck (7:30–9:00 AM) or wrong ice/take-away modifier causing drink remakes.", "mitigation": "Highlight Best-Seller/Signature tags on menu; use customer-facing POS screen for visual confirmation before payment.", "inventoryMapping": [{"actor": "Cashier", "action": "Present menu & pastries", "items": ["Backlit wall menu board", "Counter menu standee", "Glass pastry chiller", "Pastry tongs & trays"]}, {"actor": "Cashier", "action": "Capture accurate orders", "items": ["Touch POS terminal + customer screen", "POS software with recipe modifiers"]}]}, {"id": 4, "code": "S4", "name": "4. Payment & Seating", "en": "Checkout & Setup", "goal": "Pay smoothly without network friction; quickly secure a seat with power outlet & Wi-Fi (or convenient waiting spot).", "timeOffPeak": "0.5 – 1 min", "timePeak": "1 – 2 min", "maxOff": 1, "maxPeak": 2, "isStayPhase": false, "isBottleneck": false, "physicalEvidence": ["Printed Receipt (with Wi-Fi pass)", "Cash / Card", "Vibration Pager", "Tables, Chairs & Power Outlets"], "digitalEvidence": ["Dynamic VietQR Code", "Banking App / MoMo Wallet", "Audio Payment Box (TingTing)", "Wi-Fi Network (SSID & Login)"], "customerFlows": [{"label": "Shared Steps (Checkout)", "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Scan VietQR / MoMo, tap card, or pay cash; give phone number for loyalty points."}, {"num": 2, "text": "Receive receipt (with Wi-Fi password) and vibration pager."}]}, {"label": "Branch A: Dine-in", "connectorBefore": "↓ branch", "color": "c2", "steps": [{"num": 3, "text": "Head to seating floor, pick a table near a power outlet, and connect to Wi-Fi."}]}, {"label": "Branch B: Take-away", "connectorBefore": "OR", "color": "c5", "steps": [{"num": 3, "text": "Move to waiting bench near pick-up counter until pager buzzes."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Cashier", "text": "Generate dynamic VietQR / tap card / handle cash change; confirm payment via audio box."}, {"step": "Step 2", "actor": "Cashier", "text": "Print receipt, hand over pager, and point out Wi-Fi password & open seating floors."}, {"step": "Step 3", "actor": "Floor Staff", "text": "Guide guests to freshly wiped open tables during busy hours."}], "backstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Receive auto-printed cup labels & order ticket at bar immediately upon payment."}, {"step": "Step 2", "actor": "Shift Manager", "text": "Replenish small cash change or reconcile delayed bank transfer notifications."}], "support": [{"actor": "System", "text": "Dynamic VietQR gateway + instant audio payment box; CRM loyalty sync; automatic BOM inventory deduction."}], "failPoint": "Slow banking app / fake transfer screenshots; lack of small change; dead pager battery; no seats with outlets.", "mitigation": "Use POS-linked dynamic VietQR + audio confirmation box; maintain fixed opening cash float; keep pagers docked.", "inventoryMapping": [{"actor": "Cashier", "action": "Process cash & digital payments", "items": ["Cash drawer + opening small-bill float", "Dynamic VietQR display", "Payment audio notification box", "mPOS card reader"]}, {"actor": "Cashier", "action": "Issue receipt & waiting pager", "items": ["Thermal receipt printer + K80 paper rolls", "16–20 pager set with charging dock"]}, {"actor": "Floor Staff", "action": "Provide seating & connectivity", "items": ["Zoned tables/chairs (work & group)", "Wall/floor power outlets", "High-capacity Mesh Wi-Fi"]}]}, {"id": 5, "code": "S5", "name": "5. Prep & Pickup", "en": "Bar Production", "goal": "Receive accurate, well-presented drinks at the right temperature quickly with all needed accessories.", "timeOffPeak": "3 – 5 min", "timePeak": "8 – 15 min", "maxOff": 5, "maxPeak": 15, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Buzzing/Flashing Pager", "Pick-up & Open Bar Counter", "Cup Order Label", "Serving Tray / Take-away Bag", "Condiment Station (straws, napkins)"], "digitalEvidence": [], "customerFlows": [{"label": "Shared Steps (Pickup)", "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Wait at table or bench while bar prepares the order."}, {"num": 2, "text": "Hear pager buzz → return pager at pick-up counter and collect tray/bag."}, {"num": 3, "text": "Check cup label; grab straws, napkins, or syrup at condiment station."}]}, {"label": "Branch A: Dine-in", "connectorBefore": "↓ branch", "color": "c2", "steps": [{"num": 4, "text": "Carry drink & pastry tray back to chosen table."}]}, {"label": "Branch B: Take-away", "connectorBefore": "OR", "color": "c5", "steps": [{"num": 4, "text": "Check spill-proof lid/bag and walk straight out to parking (jump to S7)."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Trigger pager number as soon as all drinks & pastries in the order are ready."}, {"step": "Step 2", "actor": "Barista", "text": "Collect pager, hand over tray/bag with a smile, and thank customer."}, {"step": "Step 3", "actor": "Floor Staff", "text": "Proactively help carry trays for large groups, elderly guests, or parents with kids."}], "backstageSteps": [{"step": "Step 1", "actor": "Barista", "text": "Read label, stick onto right cup type (glassware vs. take-away), and queue production."}, {"step": "Step 2", "actor": "Barista", "text": "Pull espresso / pour tea base / shake / steam milk / add ice & toppings per SOP; warm pastry if requested."}, {"step": "Step 3", "actor": "Barista", "text": "Run visual QC (fill level, foam, clean rim) and plate onto tray or seal into take-away bag."}, {"step": "Step 4", "actor": "Floor Staff", "text": "Refill bar ice bin, restock cups/lids/straws, and prep fresh topping batches."}], "support": [{"actor": "System", "text": "Auto cup-label printer, standardized recipe SOPs, RO water filtration, morning prep & shelf-life labeling."}], "failPoint": "Biggest bottleneck: In-store orders collide with 10–15 GrabFood/ShopeeFood delivery orders at peak, pushing waits to 12–15+ min.", "mitigation": "Split 2 Baristas at peak (hot/espresso vs. cold/tea) or separate delivery queue; pre-batch phin coffee & tea bases.", "inventoryMapping": [{"actor": "Barista", "action": "Craft beverages per SOP", "items": ["Roasted espresso & phin coffee", "Tea leaves (black, oolong, jasmine, matcha)", "Condensed, fresh & oat milk, cream", "Syrups, fruit jams, fresh fruit, toppings", "Purified ice cubes & RO water", "Espresso machine, grinder, blender", "Phin filters, tea dispensers, shakers, scales", "Pastry warming oven"]}, {"actor": "Barista", "action": "Package & hand off orders", "items": ["Label printer & thermal stickers", "Glassware, ceramic mugs, coasters, trays", "PET/PP cold cups, hot paper cups + sleeves", "Lids / cup sealer, T-bags, 2–4 cup carriers"]}, {"actor": "Floor Staff", "action": "Restock condiment station", "items": ["Straws, stirrers, napkins, sugar packets"]}]}, {"id": 6, "code": "S6", "name": "6. Consumption & Stay", "en": "In-Store Experience", "goal": "Enjoy great-tasting drinks to the last sip; work productively or socialize comfortably in a clean, cool space.", "timeOffPeak": "45 – 180 min", "timePeak": "45 – 120 min", "maxOff": 0, "maxPeak": 0, "isStayPhase": true, "isBottleneck": false, "physicalEvidence": ["Drink Flavor & Ice Melt Rate", "AC Temperature & Music", "Free Iced Tea Dispenser", "Restroom Cleanliness", "Clean Tables & Seating"], "digitalEvidence": ["Wi-Fi Speed & Stability", "Social Media Check-in / Stories"], "customerFlows": [{"label": "Branch A: Dine-in", "connectorBefore": null, "color": "c2", "steps": [{"num": 1, "text": "Enjoy drink & pastry (snap aesthetic photos if desired)."}, {"num": 2, "text": "Work on laptop, study, or chat; refill complimentary iced tea/water."}, {"num": 3, "text": "Use restroom or request assistance (drink remake, AC/Wi-Fi check) if needed."}]}, {"label": "Branch B: Take-away", "connectorBefore": "OR", "color": "c5", "steps": [{"num": 1, "text": "Skip in-store stay (0 min) — proceed directly to S7."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Floor Staff", "text": "Patrol floors periodically, refill free iced tea, and politely bus empty glasses."}, {"step": "Step 2", "actor": "Shift Manager", "text": "Resolve complaints immediately (free remake for wrong taste; adjust AC/music)."}], "backstageSteps": [{"step": "Step 1", "actor": "Floor Staff", "text": "Wash, sanitize, and dry collected glassware/mugs and return to bar racks."}, {"step": "Step 2", "actor": "Floor Staff", "text": "Inspect & clean restrooms, restock tissue/soap every 45–60 min."}, {"step": "Step 3", "actor": "Shift Manager", "text": "Monitor Wi-Fi bandwidth, AC temperature, and music volume by occupancy."}], "support": [{"actor": "System", "text": "Business fiber internet + load-balanced Mesh Wi-Fi, HVAC & audio system, hygiene & restroom checklist."}], "failPoint": "Wi-Fi drops when >40 devices connect; dirty restroom or out of tissue; unbussed tables left for next guest.", "mitigation": "Deploy high-density Mesh Wi-Fi with short DHCP leases; sign hourly restroom checklists; assign dedicated floor runner.", "inventoryMapping": [{"actor": "Floor Staff", "action": "Serve iced tea & bus tables", "items": ["Free iced tea/water dispenser + cups", "Bussing trays", "Table sanitizer spray & dedicated cloths", "Sorted trash bins & liners"]}, {"actor": "Floor Staff", "action": "Wash glassware & clean restrooms", "items": ["3-compartment sink, dish soap, drying racks", "Toilet paper, hand soap, paper towels", "Air freshener, mop, hourly restroom checklist"]}, {"actor": "Shift Manager", "action": "Maintain ambiance & connectivity", "items": ["AC units & remotes", "Audio speakers & licensed playlist", "Enterprise Wi-Fi routers"]}]}, {"id": 7, "code": "S7", "name": "7. Departure & Post-Service", "en": "Exit & Retention", "goal": "Retrieve motorbike quickly without waiting, leave satisfied, and feel motivated to return.", "timeOffPeak": "1 – 2 min", "timePeak": "3 – 6 min", "maxOff": 2, "maxPeak": 6, "isStayPhase": false, "isBottleneck": true, "physicalEvidence": ["Exit Door", "Self-Bussing Station (if any)", "Parking Lot & Returned Card"], "digitalEvidence": ["Zalo OA Thank-You & Points Message", "Return-Visit Voucher", "Google Maps Review Page"], "customerFlows": [{"label": null, "connectorBefore": null, "color": "primary", "steps": [{"num": 1, "text": "Pack laptop/belongings, leave table (drop tray at bussing station if applicable), and exit."}, {"num": 2, "text": "Hand parking card to security, retrieve motorbike, and depart."}, {"num": 3, "text": "(Post-visit) Receive loyalty points/voucher on Zalo OA; optionally post a Google review."}]}], "frontstageSteps": [{"step": "Step 1", "actor": "Cashier", "text": "Thank customer warmly and say goodbye as they pass the counter."}, {"step": "Step 2", "actor": "Security", "text": "Collect parking card, turn motorbike facing street, and assist merging into traffic."}], "backstageSteps": [{"step": "Step 1", "actor": "Floor Staff", "text": "Clear remaining items, sanitize table, and reset chairs in <2 min for next guest."}, {"step": "Step 2", "actor": "Shift Manager", "text": "(End of shift) Close POS register, reconcile cash/QR transfers, count inventory, and order next-day stock."}], "support": [{"actor": "System", "text": "CRM auto-sends thank-you + loyalty points + voucher via Zalo OA; daily sales & inventory report."}], "failPoint": "Motorbike trapped 3–4 rows deep forces a 5–6 min wait in the sun; tables left dirty after peak.", "mitigation": "Maintain clear aisles between bike rows; use walkie-talkie for basement lots to pull bikes ahead of time.", "inventoryMapping": [{"actor": "Security", "action": "Return motorbike & guide exit", "items": ["Parking card collection box", "Whistle & reflective traffic wand (night)"]}, {"actor": "Shift Manager", "action": "Close shift & reorder stock", "items": ["POS end-of-day report", "Inventory count app/sheet", "Cash safe"]}, {"actor": "System", "action": "Drive retention & feedback", "items": ["CRM / Zalo OA loyalty automation", "CSAT feedback form"]}]}], "inventoryCatalog": [{"item": "Roasted Espresso Beans (Arabica/Blend) & Phin Ground Coffee (Robusta)", "cat": "F&B Consumables", "actor": "Barista", "action": "Pull espresso shots & brew Vietnamese phin coffee", "stage": "S5 • Prep", "cycle": "Order 1–2x/week (FIFO)"}, {"item": "Loose Tea Leaves (Black, Oolong, Jasmine, Matcha)", "cat": "F&B Consumables", "actor": "Barista", "action": "Brew tea bases for fruit teas & milk teas", "stage": "S5 • Prep", "cycle": "Brew fresh every 4–6 hrs; weekly order"}, {"item": "Purified Ice Cubes (Standard & Crushed)", "cat": "F&B Consumables", "actor": "Barista", "action": "Make iced drinks, blended drinks & free iced tea", "stage": "S5, S6 • Prep & Stay", "cycle": "Daily delivery (1–2 drops/day)"}, {"item": "Sweetened Condensed Milk, Fresh Milk, Oat Milk & Cream", "cat": "F&B Consumables", "actor": "Barista", "action": "Craft Bac Xiu, Ca Phe Sua Da, lattes & milk teas", "stage": "S5 • Prep", "cycle": "Restock every 1–2 days (2–4°C)"}, {"item": "Syrups, Fruit Jams, Sugar Syrup & Fresh Fruit", "cat": "F&B Consumables", "actor": "Barista", "action": "Prepare fruit teas, sodas & seasonal specials", "stage": "S5 • Prep", "cycle": "Daily fresh fruit; weekly syrups"}, {"item": "Prepped Toppings (Boba, Jelly, Cheese Foam, Flan)", "cat": "F&B Consumables", "actor": "Barista", "action": "Add custom toppings per order", "stage": "S5 • Prep", "cycle": "Cook fresh each shift; 4–8 hr shelf-life label"}, {"item": "Display Pastries (Croissant, Tiramisu, Salted Egg Sponge)", "cat": "F&B Consumables", "actor": "Cashier", "action": "Display in chiller, upsell & serve with drinks", "stage": "S3, S5 • Order & Pickup", "cycle": "Daily morning delivery"}, {"item": "Espresso Machine (2-Group), Bean Grinder & Commercial Blender", "cat": "Bar Equipment", "actor": "Barista", "action": "Grind, extract espresso & blend iced drinks", "stage": "S5 • Prep", "cycle": "Fixed asset; daily clean, quarterly service"}, {"item": "Under-Counter Fridge, Freezer & Insulated Ice Bin", "cat": "Bar Equipment", "actor": "Barista", "action": "Keep milk, toppings & ice within arm's reach", "stage": "S5 • Prep", "cycle": "Fixed; log temp at open/close"}, {"item": "Bar Tools (Phin, Tea Dispensers, Shakers, Jiggers, Scales, Oven)", "cat": "Bar Equipment", "actor": "Barista", "action": "Measure accurately per SOP & warm pastries", "stage": "S5 • Prep", "cycle": "Fixed; sanitize every shift"}, {"item": "Glassware, Ceramic Mugs, Saucers, Coasters & Serving Trays", "cat": "Packaging & Serving", "actor": "Barista", "action": "Serve Dine-in beverages & pastries", "stage": "S5, S6 • Pickup & Stay", "cycle": "Wash/rotate continuously; replace breakage"}, {"item": "PET/PP Cold Cups, Hot Paper Cups + Sleeves, Lids, Straws & T-Bags", "cat": "Packaging & Serving", "actor": "Barista", "action": "Package spill-proof Take-away orders", "stage": "S5 • Prep & Pickup", "cycle": "Daily count; weekly reorder"}, {"item": "Free Iced Tea Dispenser + Small Cups & Condiment Supplies", "cat": "Packaging & Serving", "actor": "Floor Staff", "action": "Keep complimentary tea & condiment bar stocked", "stage": "S5, S6 • Pickup & Stay", "cycle": "Refill every 30–60 min"}, {"item": "Parking Cards/Tickets, Chalk, Seat Sun-Covers & Large Umbrellas", "cat": "Parking & Space", "actor": "Security", "action": "Manage motorbikes & protect guests in sun/rain", "stage": "S2, S7 • Arrival & Exit", "cycle": "Count cards per shift; replace worn items"}, {"item": "Zoned Tables/Chairs, Power Outlets & Restroom Hygiene Supplies", "cat": "Parking & Space", "actor": "Floor Staff", "action": "Support laptop work & keep space/restrooms spotless", "stage": "S4, S6 • Seating & Stay", "cycle": "Check restrooms every 45–60 min"}, {"item": "POS Terminal + Customer Screen, Receipt/Label Printers & Paper Rolls", "cat": "IT / POS & Ops", "actor": "Cashier", "action": "Take orders, print receipts (Wi-Fi pass) & bar labels", "stage": "S3–S5 • Order to Prep", "cycle": "Keep 5–10 spare paper/label rolls"}, {"item": "Cash Drawer + Opening Float, Dynamic VietQR, Audio Box & mPOS", "cat": "IT / POS & Ops", "actor": "Cashier", "action": "Verify instant digital payments & give fast cash change", "stage": "S4 • Payment", "cycle": "Fixed daily cash float; nightly device charge"}, {"item": "16–20 Vibration Pager Set + Charging Dock", "cat": "IT / POS & Ops", "actor": "Cashier", "action": "Alert customers when drinks are ready for pickup", "stage": "S4, S5 • Payment & Pickup", "cycle": "Sanitize & dock continuously"}, {"item": "Business Fiber + High-Density Mesh Wi-Fi, Walkie-Talkies & CCTV", "cat": "IT / POS & Ops", "actor": "Shift Manager", "action": "Keep WFH Wi-Fi stable & coordinate multi-floor staff", "stage": "S2–S7 • End-to-End", "cycle": "Continuous monitoring; 4G backup for POS"}], "failPoints": [{"stage": "S2 • Parking", "title": "Peak-hour parking overflow & heavy rain", "impact": "Customers leave before even entering the shop.", "fix": "Keep take-away lane upfront; partner with nearby overflow lot; stock 3–4 large umbrellas."}, {"stage": "S3–S4 • Checkout", "title": "Morning queue jam & fake transfer screenshots", "impact": "Rushed office workers abandon queue; revenue leakage.", "fix": "POS-linked dynamic VietQR + instant audio confirmation box; tablet queue-busting when >5 guests."}, {"stage": "S5 • Bar (Bottleneck #1)", "title": "In-store orders buried under Delivery App rush", "impact": "Wait times spike to 12–15+ min, hurting satisfaction.", "fix": "Split 2 Baristas at peak (hot vs. cold) and throttle concurrent delivery orders during rush."}, {"stage": "S6 • In-Store Stay", "title": "Wi-Fi drops, scarce outlets & dirty restrooms", "impact": "High-value work/study regulars do not return.", "fix": "High-density Mesh Wi-Fi (60–100 devices); wall power strips; signed hourly restroom checklists."}, {"stage": "S5–S6 • Backstage", "title": "Running out of purified ice or fresh milk mid-shift", "impact": "Best-selling iced drinks go out of stock.", "fix": "Set POS par-level alerts; contract 2 ice drops/day (early morning & early afternoon)."}]}};
 
-    const D = BLUEPRINT_DATA;
-    const STAGES = D.stages || [];
-    const ACTORS = D.actors || [];
-    const INVENTORY_CATALOG = D.inventoryCatalog || [];
-    const FAIL_POINTS = D.failPoints || [];
+    const I18N = {
+      vi: {
+        tabBlueprint: "1. Blueprint Matrix",
+        tabInventory: "2. Inventory Explorer",
+        tabBottlenecks: "3. Thời gian & Điểm nghẽn (Fail Points)",
+        modelPrefix: "Business Model: ",
+        locationPrefix: "Địa điểm: ",
+        filterActor: "Lọc Actor:",
+        allActors: "Tất cả Actors",
+        allCats: "Tất cả phân loại",
+        showFailPoints: "Hiện Fail Points",
+        legendSeq: "Luồng tuần tự",
+        legendScenarioTag: "Scenario / Nhánh",
+        legendScenario: "Kịch bản thay thế",
+        legendHint: "Nhấn vào bất kỳ cột Giai đoạn nào để xem chi tiết Action → Inventory bên dưới",
+        laneStage: "Giai đoạn",
+        laneDuration: "& Thời lượng",
+        lanePhysicalSub: "Bằng chứng vật lý",
+        laneDigitalSub: "Bằng chứng số / Online",
+        emptyPhysical: "— (Không có bằng chứng vật lý trực tiếp)",
+        emptyDigital: "— (Không có điểm chạm số trực tiếp)",
+        laneGoalSub: "Mục tiêu dẫn xuống Action ↓",
+        laneCustSub: "Luồng Step theo Scenario",
+        divInteraction: "▼ Line of Interaction — Ranh giới tương tác trực tiếp (Khách hàng ↔ Frontstage)",
+        laneFrontSub: "Step Flow khách thấy",
+        divVisibility: "▼ Line of Visibility — Ranh giới tầm nhìn (Khách không trực tiếp nhìn thấy bên dưới)",
+        laneBackSub: "Step Flow hậu trường",
+        divInternal: "▼ Line of Internal Interaction — Ranh giới hỗ trợ nội bộ & Hệ thống / Đối tác",
+        laneSupportSub: "Quy trình, IT & Chuỗi cung ứng",
+        laneInv: "Inventory Cần Có",
+        laneInvSub: "Nhấn cột để xem đầy đủ",
+        riskLabel: "Rủi ro:",
+        stageInspectorBadge: "• Chi tiết Giai đoạn",
+        prevStage: "← Giai đoạn trước",
+        nextStage: "Giai đoạn sau →",
+        goalAtStage: "Customer Goal tại giai đoạn này",
+        noneText: "Không có",
+        failPointTitle: "Fail Point (Điểm dễ gãy trải nghiệm)",
+        mitigationLabel: "Giải pháp thiết kế:",
+        mappingTitle: "Mapping: Actor → Action → Item cần có trong Inventory",
+        invTitle: "Danh mục Inventory theo Actor & Action",
+        invSubtitle: "Toàn bộ nguyên liệu tiêu hao, thiết bị, vật phẩm không gian và hạ tầng vận hành cần có để mỗi Actor thực thi đúng Step Flow.",
+        invPlaceholder: "Tìm vật tư, thiết bị, action...",
+        invCols: ["Item trong Inventory", "Phân loại", "Actor sử dụng", "Phục vụ Action", "Giai đoạn", "Chu kỳ bổ sung / Quản lý"],
+        invEmpty: "Không tìm thấy item nào khớp bộ lọc.",
+        timeTitle: "Phân bổ Thời gian theo Giai đoạn",
+        timeSubPrefix: "So sánh thời gian thao tác & chờ đợi giữa",
+        timeSubAnd: "và",
+        fpTitle: "Điểm dễ gãy trải nghiệm (Fail Points)",
+        fpSubtitle: "Các vị trí rủi ro cao nhất trên Service Blueprint và giải pháp xử lý bằng quy trình & inventory.",
+        impactLabel: "Tác động:",
+        fixLabel: "Cách khắc phục:"
+      },
+      en: {
+        tabBlueprint: "1. Blueprint Matrix",
+        tabInventory: "2. Inventory Explorer",
+        tabBottlenecks: "3. Time & Bottlenecks (Fail Points)",
+        modelPrefix: "Business Model: ",
+        locationPrefix: "Location: ",
+        filterActor: "Filter Actor:",
+        allActors: "All Actors",
+        allCats: "All Categories",
+        showFailPoints: "Show Fail Points",
+        legendSeq: "Sequential Flow",
+        legendScenarioTag: "Scenario / Branch",
+        legendScenario: "Alternative Branch",
+        legendHint: "Click any Stage column to inspect Action → Inventory below",
+        laneStage: "Stage",
+        laneDuration: "& Duration",
+        lanePhysicalSub: "Tangible touchpoints",
+        laneDigitalSub: "Digital touchpoints",
+        emptyPhysical: "— (No direct physical evidence)",
+        emptyDigital: "— (No direct digital touchpoint)",
+        laneGoalSub: "Drives customer actions ↓",
+        laneCustSub: "Step Flow by Scenario",
+        divInteraction: "▼ Line of Interaction — Direct Customer ↔ Frontstage Interaction",
+        laneFrontSub: "Visible staff steps",
+        divVisibility: "▼ Line of Visibility — Invisible to Customer Below This Line",
+        laneBackSub: "Behind-the-scenes steps",
+        divInternal: "▼ Line of Internal Interaction — Internal Systems, Supply Chain & Partners",
+        laneSupportSub: "IT, Supply Chain & Ops",
+        laneInv: "Required Inventory",
+        laneInvSub: "Click column for full list",
+        riskLabel: "Risk:",
+        stageInspectorBadge: "• Stage Inspector",
+        prevStage: "← Previous Stage",
+        nextStage: "Next Stage →",
+        goalAtStage: "Customer Goal at This Stage",
+        noneText: "None",
+        failPointTitle: "Fail Point (Experience Breakdown Risk)",
+        mitigationLabel: "Design Mitigation:",
+        mappingTitle: "Mapping: Actor → Action → Required Inventory Items",
+        invTitle: "Inventory Catalog by Actor & Action",
+        invSubtitle: "All consumables, equipment, space assets, and IT infrastructure required for each Actor to execute their Step Flow.",
+        invPlaceholder: "Search items, equipment, actions...",
+        invCols: ["Inventory Item", "Category", "Actor", "Supports Action", "Stage", "Replenishment / Management"],
+        invEmpty: "No inventory items match your filter.",
+        timeTitle: "Duration Breakdown by Stage",
+        timeSubPrefix: "Comparing operational & wait durations between",
+        timeSubAnd: "vs.",
+        fpTitle: "Key Experience Fail Points",
+        fpSubtitle: "Highest-risk breakdown points across the blueprint and operational mitigations.",
+        impactLabel: "Impact:",
+        fixLabel: "Mitigation:"
+      }
+    };
 
     let state = {
+      lang: "vi",
       activeTab: "blueprint",
       mode: "offpeak",
       actorFilter: "all",
       showFailPoints: false,
-      selectedStageId: STAGES.length ? STAGES[0].id : 1
+      selectedStageId: 1
     };
+
+    function curData() { return DATASETS[state.lang]; }
+    function t(key) { return I18N[state.lang][key]; }
 
     function esc(str) {
       return String(str == null ? "" : str)
@@ -1964,7 +991,7 @@
 
     function actorBadgeClass(actorName) {
       const lower = String(actorName || "").toLowerCase();
-      const found = ACTORS.find(a => lower.includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(lower));
+      const found = (curData().actors || []).find(a => lower.includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(lower));
       return found ? colorClass(found.color) : "tint-c6";
     }
 
@@ -1973,78 +1000,90 @@
       return String(actorName || "").toLowerCase().includes(state.actorFilter.toLowerCase());
     }
 
-    function initStaticUI() {
+    function renderStaticUI() {
+      const D = curData();
+      document.documentElement.lang = state.lang;
       document.title = D.title || "Service Blueprint";
       document.getElementById("meta-title").textContent = D.title || "Service Blueprint";
       document.getElementById("meta-subtitle").textContent = D.subtitle || "";
-      document.getElementById("meta-model").textContent = "Business Model: " + (D.businessModel || "—");
-      document.getElementById("meta-location").textContent = "Location: " + (D.location || "—");
-      document.getElementById("btn-offpeak").textContent = D.offPeakLabel || "Giờ thường";
-      document.getElementById("btn-peak").textContent = D.peakLabel || "Giờ cao điểm";
+      document.getElementById("meta-model").textContent = t("modelPrefix") + (D.businessModel || "—");
+      document.getElementById("meta-location").textContent = t("locationPrefix") + (D.location || "—");
+
+      document.getElementById("tab-btn-blueprint").textContent = t("tabBlueprint");
+      document.getElementById("tab-btn-inventory").textContent = t("tabInventory");
+      document.getElementById("tab-btn-bottlenecks").textContent = t("tabBottlenecks");
+
+      document.getElementById("btn-offpeak").textContent = D.offPeakLabel;
+      document.getElementById("btn-peak").textContent = D.peakLabel;
+      document.getElementById("lbl-filter-actor").textContent = t("filterActor");
+      document.getElementById("btn-failpoints").textContent = t("showFailPoints");
+
+      document.getElementById("btn-lang-vi").className = state.lang === "vi" ? "seg-btn active-offpeak" : "seg-btn";
+      document.getElementById("btn-lang-en").className = state.lang === "en" ? "seg-btn active-offpeak" : "seg-btn";
+
+      document.getElementById("legend-bar").innerHTML = `
+        <div class="legend-items">
+          <span class="legend-item"><span class="dash-sample dash-red"></span> Line of Interaction</span>
+          <span class="legend-item"><span class="dash-sample dash-blue"></span> Line of Visibility</span>
+          <span class="legend-item"><span class="dash-sample dash-purple"></span> Line of Internal Interaction</span>
+          <span class="legend-item"><span class="step-tag" style="margin:0;">Step N</span> ${esc(t("legendSeq"))}</span>
+          <span class="legend-item"><span class="scenario-pill tint-c4">${esc(t("legendScenarioTag"))}</span> ${esc(t("legendScenario"))}</span>
+        </div>
+        <span class="legend-hint">${esc(t("legendHint"))}</span>
+      `;
 
       const actorFilter = document.getElementById("actor-filter");
-      actorFilter.innerHTML = `<option value="all">All Actors</option>` +
-        ACTORS.map(a => `<option value="${esc(a.name)}">${esc(a.label || a.name)}</option>`).join("");
+      actorFilter.innerHTML = `<option value="all">${esc(t("allActors"))}</option>` +
+        (D.actors || []).map(a => `<option value="${esc(a.name)}">${esc(a.label || a.name)}</option>`).join("");
+      actorFilter.value = state.actorFilter;
 
-      const cats = Array.from(new Set(INVENTORY_CATALOG.map(r => r.cat).filter(Boolean)));
-      document.getElementById("inv-cat").innerHTML = `<option value="all">All Categories</option>` +
+      document.getElementById("inv-title").textContent = t("invTitle");
+      document.getElementById("inv-subtitle").textContent = t("invSubtitle");
+      document.getElementById("inv-search").placeholder = t("invPlaceholder");
+      document.getElementById("inv-thead-row").innerHTML = t("invCols").map(c => `<th>${esc(c)}</th>`).join("");
+
+      const cats = Array.from(new Set((D.inventoryCatalog || []).map(r => r.cat).filter(Boolean)));
+      document.getElementById("inv-cat").innerHTML = `<option value="all">${esc(t("allCats"))}</option>` +
         cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
 
-      const invActors = Array.from(new Set(INVENTORY_CATALOG.map(r => r.actor).filter(Boolean)));
-      document.getElementById("inv-actor").innerHTML = `<option value="all">All Actors</option>` +
+      const invActors = Array.from(new Set((D.inventoryCatalog || []).map(r => r.actor).filter(Boolean)));
+      document.getElementById("inv-actor").innerHTML = `<option value="all">${esc(t("allActors"))}</option>` +
         invActors.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join("");
 
-      document.getElementById("time-subtitle").textContent =
-        `Comparing operational & wait durations between ${D.offPeakLabel || "Giờ thường"} vs. ${D.peakLabel || "Giờ cao điểm"}.`;
-
+      document.getElementById("time-title").textContent = t("timeTitle");
+      document.getElementById("time-subtitle").textContent = `${t("timeSubPrefix")} ${D.offPeakLabel} ${t("timeSubAnd")} ${D.peakLabel}.`;
+      document.getElementById("fp-title").textContent = t("fpTitle");
+      document.getElementById("fp-subtitle").textContent = t("fpSubtitle");
       document.getElementById("bar-legend").innerHTML = `
-        <span class="legend-item"><span class="swatch" style="background:var(--primary)"></span> ${esc(D.offPeakLabel || "Giờ thường")}</span>
-        <span class="legend-item"><span class="swatch" style="background:var(--warning-bar)"></span> ${esc(D.peakLabel || "Giờ cao điểm")}${D.peakDescription ? " (" + esc(D.peakDescription) + ")" : ""}</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--primary)"></span> ${esc(D.offPeakLabel)}</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--warning-bar)"></span> ${esc(D.peakLabel)}${D.peakDescription ? " (" + esc(D.peakDescription) + ")" : ""}</span>
       `;
     }
 
     function renderKPIs() {
-      const kpis = D.kpis || [];
+      const kpis = curData().kpis || [];
       document.getElementById("kpi-grid").innerHTML = kpis.map(k => {
         const val = state.mode === "offpeak" ? (k.valueOffPeak || "") : (k.valuePeak || k.valueOffPeak || "");
         let cls = "kpi-val";
-        if (k.accent === "dynamic") {
-          cls += state.mode === "offpeak" ? " is-primary" : " is-warning";
-        } else if (k.accent === "primary") {
-          cls += " is-primary";
-        } else if (k.accent === "warning") {
-          cls += " is-warning";
-        }
-        return `<div class="kpi-box">
-          <div class="kpi-label">${esc(k.label)}</div>
-          <div class="${cls}">${esc(val)}</div>
-        </div>`;
+        if (k.accent === "dynamic") cls += state.mode === "offpeak" ? " is-primary" : " is-warning";
+        else if (k.accent === "primary") cls += " is-primary";
+        else if (k.accent === "warning") cls += " is-warning";
+        return `<div class="kpi-box"><div class="kpi-label">${esc(k.label)}</div><div class="${cls}">${esc(val)}</div></div>`;
       }).join("");
     }
 
     function renderCustomerFlowCell(stage) {
-      const flows = stage.customerFlows || [];
-      return flows.map(flow => {
+      return (stage.customerFlows || []).map(flow => {
         const sep = flow.connectorBefore
-          ? `<div class="branch-sep">
-               <div class="branch-sep-line"></div>
-               <span class="branch-sep-text ${flow.connectorBefore.includes("↓") ? "is-branch" : ""}">${esc(flow.connectorBefore)}</span>
-               <div class="branch-sep-line"></div>
-             </div>`
+          ? `<div class="branch-sep"><div class="branch-sep-line"></div><span class="branch-sep-text ${flow.connectorBefore.includes("↓") ? "is-branch" : ""}">${esc(flow.connectorBefore)}</span><div class="branch-sep-line"></div></div>`
           : "";
-
         const head = flow.label
           ? `<div class="scenario-head"><span class="scenario-pill ${colorClass(flow.color || "c4")}">${esc(flow.label)}</span></div>`
           : "";
-
         const stepsHtml = (flow.steps || []).map((st, idx, arr) => `
-          <div class="step-card">
-            <span class="step-tag">Step ${esc(st.num)}</span>
-            <span>${esc(st.text)}</span>
-          </div>
+          <div class="step-card"><span class="step-tag">Step ${esc(st.num)}</span><span>${esc(st.text)}</span></div>
           ${idx < arr.length - 1 ? '<div class="step-arrow">↓</div>' : ""}
         `).join("");
-
         return `${sep}<div class="${flow.label ? "scenario-box" : ""}">${head}${stepsHtml}</div>`;
       }).join("");
     }
@@ -2068,166 +1107,95 @@
     }
 
     function renderBlueprint() {
+      const STAGES = curData().stages || [];
       const grid = document.getElementById("blueprint-grid");
       const colsStyle = `grid-template-columns: 175px repeat(${STAGES.length}, minmax(195px, 1fr));`;
       const selCls = id => (id === state.selectedStageId ? "stage-col-selected" : "");
 
-      // Row 1: Stage & Duration
       let html = `<div class="bp-row bp-row-border-strong bp-row-header" style="${colsStyle}">
-        <div class="lane-label bg-header">
-          <span>Stage</span>
-          <span class="lane-sub">&amp; Duration</span>
-        </div>`;
+        <div class="lane-label bg-header"><span>${esc(t("laneStage"))}</span><span class="lane-sub">${esc(t("laneDuration"))}</span></div>`;
       STAGES.forEach(s => {
         const dur = state.mode === "offpeak" ? s.timeOffPeak : s.timePeak;
         const isPeakHot = state.mode === "peak" && s.isBottleneck;
         const failRing = (state.showFailPoints && s.isBottleneck) ? "fail-ring" : "";
-        html += `
-          <button onclick="selectStage(${s.id})" class="stage-head-btn ${selCls(s.id)} ${failRing}">
-            <div class="stage-head-top">
-              <span class="stage-code">${esc(s.code)}</span>
-              <span class="dur-badge ${isPeakHot ? "is-peak-hot" : ""}">${esc(dur)}</span>
-            </div>
-            <div class="stage-name">${esc(String(s.name || "").replace(/^\d+\.\s*/, ""))}</div>
-            <div class="stage-en">${esc(s.en || "")}</div>
-          </button>`;
+        html += `<button onclick="selectStage(${s.id})" class="stage-head-btn ${selCls(s.id)} ${failRing}">
+          <div class="stage-head-top"><span class="stage-code">${esc(s.code)}</span><span class="dur-badge ${isPeakHot ? "is-peak-hot" : ""}">${esc(dur)}</span></div>
+          <div class="stage-name">${esc(String(s.name || "").replace(/^\d+\.\s*/, ""))}</div>
+          <div class="stage-en">${esc(s.en || "")}</div>
+        </button>`;
       });
       html += `</div>`;
 
-      // Row 2: Physical Evidence (Neutral Chips)
       html += `<div class="bp-row bp-row-border" style="${colsStyle}">
-        <div class="lane-label">
-          <span class="lane-title-flex"><span class="dot dot-physical"></span> Physical Evidence</span>
-          <span class="lane-sub">Tangible touchpoints</span>
-        </div>`;
+        <div class="lane-label"><span class="lane-title-flex"><span class="dot dot-physical"></span> Physical Evidence</span><span class="lane-sub">${esc(t("lanePhysicalSub"))}</span></div>`;
       STAGES.forEach(s => {
         const list = s.physicalEvidence || [];
-        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
-          ${list.length
-            ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>`
-            : `<span class="empty-note">— (No direct physical evidence)</span>`}
-        </div>`;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">${list.length ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>` : `<span class="empty-note">${esc(t("emptyPhysical"))}</span>`}</div>`;
       });
       html += `</div>`;
 
-      // Row 3: Digital Evidence (Unified Neutral Chips — Option 1)
       html += `<div class="bp-row bp-row-border-strong" style="${colsStyle}">
-        <div class="lane-label">
-          <span class="lane-title-flex"><span class="dot dot-digital"></span> Digital Evidence</span>
-          <span class="lane-sub">Digital touchpoints</span>
-        </div>`;
+        <div class="lane-label"><span class="lane-title-flex"><span class="dot dot-digital"></span> Digital Evidence</span><span class="lane-sub">${esc(t("laneDigitalSub"))}</span></div>`;
       STAGES.forEach(s => {
         const list = s.digitalEvidence || [];
-        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
-          ${list.length
-            ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>`
-            : `<span class="empty-note">— (No direct digital touchpoint)</span>`}
-        </div>`;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">${list.length ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>` : `<span class="empty-note">${esc(t("emptyDigital"))}</span>`}</div>`;
       });
       html += `</div>`;
 
-      // Row 4: Customer Goal (Directly above Customer Actions)
       html += `<div class="bp-row bp-row-border bp-row-subtle" style="${colsStyle}">
-        <div class="lane-label bg-subtle">
-          <span style="color:var(--primary)">Customer Goal</span>
-          <span class="lane-sub">Drives customer actions ↓</span>
-        </div>`;
+        <div class="lane-label bg-subtle"><span style="color:var(--primary)">Customer Goal</span><span class="lane-sub">${esc(t("laneGoalSub"))}</span></div>`;
       STAGES.forEach(s => {
-        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
-          <div class="goal-cell-inner">
-            <div class="goal-box">${esc(s.goal)}</div>
-            <div class="goal-arrow">↓</div>
-          </div>
-        </div>`;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}"><div class="goal-cell-inner"><div class="goal-box">${esc(s.goal)}</div><div class="goal-arrow">↓</div></div></div>`;
       });
       html += `</div>`;
 
-      // Row 5: Customer Actions (Step Flow + Explicit Scenarios)
       html += `<div class="bp-row" style="${colsStyle}">
-        <div class="lane-label">
-          <span>Customer Actions</span>
-          <span class="lane-sub">Step Flow by Scenario</span>
-        </div>`;
+        <div class="lane-label"><span>Customer Actions</span><span class="lane-sub">${esc(t("laneCustSub"))}</span></div>`;
       STAGES.forEach(s => {
-        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
-          ${renderCustomerFlowCell(s)}
-        </div>`;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">${renderCustomerFlowCell(s)}</div>`;
       });
       html += `</div>`;
 
-      // Line of Interaction
-      html += `<div class="bp-divider line-interaction">▼ Line of Interaction — Direct Customer ↔ Frontstage Interaction</div>`;
+      html += `<div class="bp-divider line-interaction">${esc(t("divInteraction"))}</div>`;
 
-      // Row 6: Frontstage Actions
       html += `<div class="bp-row" style="${colsStyle}">
-        <div class="lane-label">
-          <span>Frontstage Actions</span>
-          <span class="lane-sub">Visible staff steps</span>
-        </div>`;
+        <div class="lane-label"><span>Frontstage Actions</span><span class="lane-sub">${esc(t("laneFrontSub"))}</span></div>`;
       STAGES.forEach(s => {
-        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
-          ${renderActorStepList(s.frontstageSteps, false)}
-        </div>`;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">${renderActorStepList(s.frontstageSteps, false)}</div>`;
       });
       html += `</div>`;
 
-      // Line of Visibility
-      html += `<div class="bp-divider line-visibility">▼ Line of Visibility — Invisible to Customer Below This Line</div>`;
+      html += `<div class="bp-divider line-visibility">${esc(t("divVisibility"))}</div>`;
 
-      // Row 7: Backstage Actions
       html += `<div class="bp-row" style="${colsStyle}">
-        <div class="lane-label">
-          <span>Backstage Actions</span>
-          <span class="lane-sub">Behind-the-scenes steps</span>
-        </div>`;
+        <div class="lane-label"><span>Backstage Actions</span><span class="lane-sub">${esc(t("laneBackSub"))}</span></div>`;
       STAGES.forEach(s => {
         const failRing = (state.showFailPoints && s.isBottleneck) ? "fail-ring" : "";
-        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)} ${failRing}">
-          ${renderActorStepList(s.backstageSteps, true)}
-        </div>`;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)} ${failRing}">${renderActorStepList(s.backstageSteps, true)}</div>`;
       });
       html += `</div>`;
 
-      // Line of Internal Interaction
-      html += `<div class="bp-divider line-internal">▼ Line of Internal Interaction — Internal Systems, Supply Chain &amp; Partners</div>`;
+      html += `<div class="bp-divider line-internal">${esc(t("divInternal"))}</div>`;
 
-      // Row 8: Support Processes
       html += `<div class="bp-row bp-row-border" style="${colsStyle}">
-        <div class="lane-label">
-          <span>Support Processes</span>
-          <span class="lane-sub">IT, Supply Chain &amp; Ops</span>
-        </div>`;
+        <div class="lane-label"><span>Support Processes</span><span class="lane-sub">${esc(t("laneSupportSub"))}</span></div>`;
       STAGES.forEach(s => {
-        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
-          <div class="support-stack">
-            ${(s.support || []).map(item => {
-              const cls = matchesActor(item.actor) ? "highlighted" : "dimmed";
-              return `<div class="step-card is-white ${cls}">
-                <div style="margin-bottom:4px;"><span class="actor-badge ${actorBadgeClass(item.actor)}">${esc(item.actor)}</span></div>
-                <div>${esc(item.text)}</div>
-              </div>`;
-            }).join("")}
-          </div>
-        </div>`;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}"><div class="support-stack">${(s.support || []).map(item => {
+          const cls = matchesActor(item.actor) ? "highlighted" : "dimmed";
+          return `<div class="step-card is-white ${cls}"><div style="margin-bottom:4px;"><span class="actor-badge ${actorBadgeClass(item.actor)}">${esc(item.actor)}</span></div><div>${esc(item.text)}</div></div>`;
+        }).join("")}</div></div>`;
       });
       html += `</div>`;
 
-      // Row 9: Inventory Preview
       html += `<div class="bp-row bp-row-subtle" style="${colsStyle}">
-        <div class="lane-label bg-subtle">
-          <span>Required Inventory</span>
-          <span class="lane-sub">Click column for full list</span>
-        </div>`;
+        <div class="lane-label bg-subtle"><span>${esc(t("laneInv"))}</span><span class="lane-sub">${esc(t("laneInvSub"))}</span></div>`;
       STAGES.forEach(s => {
         const allItems = (s.inventoryMapping || []).flatMap(m => m.items || []);
         const preview = allItems.slice(0, 3);
         const extra = allItems.length - preview.length;
         html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
-          <div class="chip-wrap">
-            ${preview.map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}
-            ${extra > 0 ? `<span class="actor-badge tint-primary">+${extra} item</span>` : ""}
-          </div>
-          ${state.showFailPoints && s.failPoint ? `<div class="fail-inline-box"><strong>Risk:</strong> ${esc(s.failPoint)}</div>` : ""}
+          <div class="chip-wrap">${preview.map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}${extra > 0 ? `<span class="actor-badge tint-primary">+${extra} item</span>` : ""}</div>
+          ${state.showFailPoints && s.failPoint ? `<div class="fail-inline-box"><strong>${esc(t("riskLabel"))}</strong> ${esc(s.failPoint)}</div>` : ""}
         </div>`;
       });
       html += `</div>`;
@@ -2237,6 +1205,8 @@
     }
 
     function renderInspector() {
+      const D = curData();
+      const STAGES = D.stages || [];
       const idx = STAGES.findIndex(st => st.id === state.selectedStageId);
       const s = STAGES[idx >= 0 ? idx : 0];
       if (!s) return;
@@ -2247,61 +1217,45 @@
         <div class="inspector-head">
           <div>
             <div class="badge-row" style="margin-bottom:0;">
-              <span class="pill tint-primary">${esc(s.code)} • Stage Inspector</span>
-              <span class="muted-xs">${esc(D.offPeakLabel || "Thường")}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> | ${esc(D.peakLabel || "Cao điểm")}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong></span>
+              <span class="pill tint-primary">${esc(s.code)} ${esc(t("stageInspectorBadge"))}</span>
+              <span class="muted-xs">${esc(D.offPeakLabel)}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> | ${esc(D.peakLabel)}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong></span>
             </div>
             <h3 class="inspector-title">${esc(s.name)}${s.en ? " (" + esc(s.en) + ")" : ""}</h3>
           </div>
           <div class="inspector-nav">
-            <button onclick="selectStage(${prevId})" class="btn-outline">← Previous Stage</button>
-            <button onclick="selectStage(${nextId})" class="btn-outline">Next Stage →</button>
+            <button onclick="selectStage(${prevId})" class="btn-outline">${esc(t("prevStage"))}</button>
+            <button onclick="selectStage(${nextId})" class="btn-outline">${esc(t("nextStage"))}</button>
           </div>
         </div>
 
         <div class="grid-12">
           <div class="col-5 stack-12">
             <div class="panel-box is-primary">
-              <div class="eyebrow is-primary">Customer Goal at This Stage</div>
+              <div class="eyebrow is-primary">${esc(t("goalAtStage"))}</div>
               <div style="font-size:13.5px;">${esc(s.goal)}</div>
             </div>
-
             <div class="evidence-pair">
               <div class="panel-box">
                 <div class="eyebrow"><span class="lane-title-flex"><span class="dot dot-physical"></span> Physical Evidence</span></div>
-                <div class="chip-wrap">
-                  ${(s.physicalEvidence || []).length
-                    ? s.physicalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("")
-                    : '<span class="empty-note">None</span>'}
-                </div>
+                <div class="chip-wrap">${(s.physicalEvidence || []).length ? s.physicalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("") : `<span class="empty-note">${esc(t("noneText"))}</span>`}</div>
               </div>
               <div class="panel-box">
                 <div class="eyebrow"><span class="lane-title-flex"><span class="dot dot-digital"></span> Digital Evidence</span></div>
-                <div class="chip-wrap">
-                  ${(s.digitalEvidence || []).length
-                    ? s.digitalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("")
-                    : '<span class="empty-note">None</span>'}
-                </div>
+                <div class="chip-wrap">${(s.digitalEvidence || []).length ? s.digitalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("") : `<span class="empty-note">${esc(t("noneText"))}</span>`}</div>
               </div>
             </div>
-
             <div class="panel-box is-warning">
-              <div class="eyebrow is-warning">Fail Point (Experience Breakdown Risk)</div>
+              <div class="eyebrow is-warning">${esc(t("failPointTitle"))}</div>
               <div style="font-size:12.5px;">${esc(s.failPoint || "—")}</div>
-              ${s.mitigation ? `<div class="mitigation-row"><strong>Design Mitigation:</strong> ${esc(s.mitigation)}</div>` : ""}
+              ${s.mitigation ? `<div class="mitigation-row"><strong>${esc(t("mitigationLabel"))}</strong> ${esc(s.mitigation)}</div>` : ""}
             </div>
           </div>
-
           <div class="col-7 stack-10">
-            <div class="eyebrow" style="margin-bottom:0;">Mapping: Actor → Action → Required Inventory Items</div>
+            <div class="eyebrow" style="margin-bottom:0;">${esc(t("mappingTitle"))}</div>
             ${(s.inventoryMapping || []).map(m => `
               <div class="inv-map-card">
-                <div class="inv-map-head">
-                  <span class="actor-badge ${actorBadgeClass(m.actor)}">${esc(m.actor)}</span>
-                  <span>→ ${esc(m.action)}</span>
-                </div>
-                <div class="chip-wrap">
-                  ${(m.items || []).map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}
-                </div>
+                <div class="inv-map-head"><span class="actor-badge ${actorBadgeClass(m.actor)}">${esc(m.actor)}</span><span>→ ${esc(m.action)}</span></div>
+                <div class="chip-wrap">${(m.items || []).map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}</div>
               </div>
             `).join("")}
           </div>
@@ -2318,12 +1272,10 @@
       const q = (document.getElementById("inv-search").value || "").toLowerCase().trim();
       const cat = document.getElementById("inv-cat").value;
       const actor = document.getElementById("inv-actor").value;
+      const list = curData().inventoryCatalog || [];
 
-      const filtered = INVENTORY_CATALOG.filter(row => {
-        const matchQ = !q ||
-          String(row.item || "").toLowerCase().includes(q) ||
-          String(row.action || "").toLowerCase().includes(q) ||
-          String(row.stage || "").toLowerCase().includes(q);
+      const filtered = list.filter(row => {
+        const matchQ = !q || String(row.item || "").toLowerCase().includes(q) || String(row.action || "").toLowerCase().includes(q) || String(row.stage || "").toLowerCase().includes(q);
         const matchCat = cat === "all" || row.cat === cat;
         const matchActor = actor === "all" || String(row.actor || "").includes(actor);
         return matchQ && matchCat && matchActor;
@@ -2331,10 +1283,9 @@
 
       const tbody = document.getElementById("inventory-tbody");
       if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">No inventory items match your filter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">${esc(t("invEmpty"))}</td></tr>`;
         return;
       }
-
       tbody.innerHTML = filtered.map(row => `
         <tr>
           <td class="td-bold">${esc(row.item)}</td>
@@ -2348,7 +1299,8 @@
     }
 
     function renderBottlenecks() {
-      const opStages = STAGES.filter(s => !s.isStayPhase);
+      const D = curData();
+      const opStages = (D.stages || []).filter(s => !s.isStayPhase);
       const maxVal = Math.max(1, ...opStages.map(s => Math.max(Number(s.maxOff) || 0, Number(s.maxPeak) || 0)));
       const scale = maxVal * 1.08;
 
@@ -2358,13 +1310,10 @@
         return `
           <div class="bar-group">
             <div class="bar-head">
-              <span class="td-bold">
-                ${esc(s.name)}
-                ${s.isBottleneck ? '<span class="actor-badge tint-warning" style="margin-left:6px;">Bottleneck</span>' : ""}
-              </span>
+              <span class="td-bold">${esc(s.name)}${s.isBottleneck ? '<span class="actor-badge tint-warning" style="margin-left:6px;">Bottleneck</span>' : ""}</span>
               <span class="muted-xs" style="font-variant-numeric:tabular-nums;">
-                ${esc(D.offPeakLabel || "Thường")}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> •
-                ${esc(D.peakLabel || "Cao điểm")}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong>
+                ${esc(D.offPeakLabel)}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> •
+                ${esc(D.peakLabel)}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong>
               </span>
             </div>
             <div class="bar-track"><div class="bar-fill-off" style="width:${offPct}%"></div></div>
@@ -2373,24 +1322,37 @@
         `;
       }).join("");
 
-      if (D.stayPhaseNote) {
-        barsHtml += `<div class="panel-box" style="font-size:12px;color:var(--muted);">${esc(D.stayPhaseNote)}</div>`;
-      }
+      if (D.stayPhaseNote) barsHtml += `<div class="panel-box" style="font-size:12px;color:var(--muted);">${esc(D.stayPhaseNote)}</div>`;
       document.getElementById("time-bars").innerHTML = barsHtml;
 
-      document.getElementById("failpoints-list").innerHTML = FAIL_POINTS.map((fp, idx) => `
+      document.getElementById("failpoints-list").innerHTML = (D.failPoints || []).map((fp, idx) => `
         <div class="fp-card">
-          <div class="fp-head">
-            <span class="fp-title">${idx + 1}. ${esc(fp.title)}</span>
-            <span class="pill tint-warning" style="flex-shrink:0;">${esc(fp.stage)}</span>
-          </div>
-          <div style="color:var(--muted);"><strong style="color:var(--fg);">Impact:</strong> ${esc(fp.impact)}</div>
-          <div style="color:var(--muted);"><strong style="color:var(--success);">Mitigation:</strong> ${esc(fp.fix)}</div>
+          <div class="fp-head"><span class="fp-title">${idx + 1}. ${esc(fp.title)}</span><span class="pill tint-warning" style="flex-shrink:0;">${esc(fp.stage)}</span></div>
+          <div style="color:var(--muted);"><strong style="color:var(--fg);">${esc(t("impactLabel"))}</strong> ${esc(fp.impact)}</div>
+          <div style="color:var(--muted);"><strong style="color:var(--success);">${esc(t("fixLabel"))}</strong> ${esc(fp.fix)}</div>
         </div>
       `).join("");
     }
 
-    // Bind events
+    function renderAll() {
+      renderStaticUI();
+      renderKPIs();
+      renderBlueprint();
+      renderInventory();
+      renderBottlenecks();
+    }
+
+    function switchLang(lang) {
+      if (state.lang === lang) return;
+      state.lang = lang;
+      state.actorFilter = "all";
+      document.getElementById("inv-search").value = "";
+      renderAll();
+    }
+
+    document.getElementById("btn-lang-vi").addEventListener("click", () => switchLang("vi"));
+    document.getElementById("btn-lang-en").addEventListener("click", () => switchLang("en"));
+
     document.querySelectorAll(".tabs .btn").forEach(btn => {
       btn.addEventListener("click", () => {
         state.activeTab = btn.dataset.tab;
@@ -2433,11 +1395,7 @@
     document.getElementById("inv-cat").addEventListener("change", renderInventory);
     document.getElementById("inv-actor").addEventListener("change", renderInventory);
 
-    initStaticUI();
-    renderKPIs();
-    renderBlueprint();
-    renderInventory();
-    renderBottlenecks();
+    renderAll();
   </script>
 </body>
 </html>
