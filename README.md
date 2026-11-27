@@ -42,13 +42,22 @@ $skill-installer https://github.com/QuangHo0911/service-blueprint-brainstorm/tre
 - Open **Cursor Settings → Customize → Plugins / Skills → Add from GitHub Repository**
 - Paste: `https://github.com/QuangHo0911/service-blueprint-brainstorm`
 
-### 4. Universal CLI (`skills.sh` — Claude, Codex, Cursor, Antigravity)
+### 4. Gemini CLI
+Install directly as a Gemini CLI extension:
+```bash
+gemini extensions install https://github.com/QuangHo0911/service-blueprint-brainstorm
+```
+
+### 5. Antigravity
+Install directly via Antigravity CLI:
+```bash
+agy plugin install https://github.com/QuangHo0911/service-blueprint-brainstorm
+```
+
+### 6. Universal CLI (`skills.sh` — Claude, Codex, Cursor, Gemini CLI, Antigravity)
 ```bash
 npx skills add QuangHo0911/service-blueprint-brainstorm
 ```
-
-### 5. Antigravity (Manual Global Install)
-Copy `skills/service-blueprint-brainstorm` into `~/.gemini/config/skills/service-blueprint-brainstorm`.
 
 ---
 

@@ -1,0 +1,11 @@
+{
+  "name": "service-blueprint-brainstorm",
+  "version": "1.0.0",
+  "description": "10-step Service Design Blueprint brainstorming Agent Skill that generates portable, Light-Theme-only interactive HTML blueprints for any product or service.",
+  "author": {
+    "name": "QuangHo0911",
+    "url": "https://github.com/QuangHo0911"
+  },
+  "homepage": "https://github.com/QuangHo0911/service-blueprint-brainstorm",
+  "repository": "https://github.com/QuangHo0911/service-blueprint-brainstorm"
+}
