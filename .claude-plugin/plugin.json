@@ -1,0 +1,21 @@
+{
+  "name": "service-blueprint-brainstorm",
+  "version": "1.0.0",
+  "description": "10-step Service Design Blueprint brainstorming framework that generates portable, Light-Theme-only interactive HTML blueprints for any product or service.",
+  "author": {
+    "name": "QuangHo0911",
+    "url": "https://github.com/QuangHo0911"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/QuangHo0911/service-blueprint-brainstorm",
+  "keywords": [
+    "service-design",
+    "service-blueprint",
+    "product-management",
+    "ux-design",
+    "brainstorming"
+  ],
+  "skills": [
+    "skills/service-blueprint-brainstorm/SKILL.md"
+  ]
+}

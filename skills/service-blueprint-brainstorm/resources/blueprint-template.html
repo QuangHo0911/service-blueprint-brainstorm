@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Service Design Blueprint</title>
+  <style>
+    /* ==========================================================================
+       Standalone Portable Light-Theme Stylesheet (Zero External CDN Dependencies)
+       Designed to render identically in Antigravity Artifacts, Browsers, & IDEs.
+       ========================================================================== */
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --content: #f8fafc;
+      --content-alt: #f1f5f9;
+      --border: #cbd5e1;
+      --card-border: #e2e8f0;
+      --fg: #0f172a;
+      --muted: #64748b;
+      --placeholder: #94a3b8;
+
+      --primary: #2563eb;
+      --primary-fg: #ffffff;
+      --primary-tint-bg: #eff6ff;
+      --primary-tint-bd: #bfdbfe;
+
+      --secondary-bg: #f1f5f9;
+      --secondary-fg: #334155;
+
+      --success: #15803d;
+      --success-tint-bg: #f0fdf4;
+      --success-tint-bd: #bbf7d0;
+
+      --warning: #b45309;
+      --warning-bar: #d97706;
+      --warning-tint-bg: #fffbeb;
+      --warning-tint-bd: #fde68a;
+
+      --error: #dc2626;
+      --error-tint-bg: #fef2f2;
+      --error-tint-bd: #fecaca;
+
+      --line-interaction: #dc2626;
+      --line-visibility: #2563eb;
+      --line-internal: #7c3aed;
+
+      --dot-physical: #10b981;
+      --dot-digital: #2563eb;
+
+      --c1-bg: #eff6ff; --c1-bd: #bfdbfe; --c1-fg: #1d4ed8;
+      --c2-bg: #ecfdf5; --c2-bd: #a7f3d0; --c2-fg: #047857;
+      --c3-bg: #ecfeff; --c3-bd: #a5f3fc; --c3-fg: #0e7490;
+      --c4-bg: #f5f3ff; --c4-bd: #ddd6fe; --c4-fg: #6d28d9;
+      --c5-bg: #fff7ed; --c5-bd: #fed7aa; --c5-fg: #c2410c;
+      --c6-bg: #f1f5f9; --c6-bd: #cbd5e1; --c6-fg: #334155;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body { padding: 16px; }
+    @media (min-width: 768px) { body { padding: 24px; } }
+
+    .container {
+      max-width: 1640px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-pad { padding: 20px; }
+
+    /* Header */
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    @media (min-width: 1024px) {
+      .header-top {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      line-height: 1.35;
+    }
+
+    .h1 {
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) {
+      .kpi-grid { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+    }
+
+    .kpi-box {
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); }
+    .kpi-val {
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--fg);
+      margin-top: 2px;
+    }
+    .kpi-val.is-primary { color: var(--primary); }
+    .kpi-val.is-warning { color: var(--warning-bar); }
+
+    /* Toolbar */
+    .header-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      background: var(--secondary-bg);
+      color: var(--secondary-fg);
+    }
+    .btn:hover { background: #e2e8f0; }
+    .btn.is-active {
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    .btn.is-active:hover { background: #1d4ed8; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      background: var(--content-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+    }
+    .seg-btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .seg-btn.active-offpeak {
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    .seg-btn.active-peak {
+      background: var(--warning-bar);
+      color: #ffffff;
+    }
+
+    .control-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+    }
+
+    .select, .input {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      outline: none;
+    }
+    .select:focus, .input:focus { border-color: var(--primary); }
+    .input { width: 230px; }
+    .input::placeholder { color: var(--placeholder); }
+
+    .btn-outline {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--fg);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-outline:hover { border-color: var(--primary); }
+    .btn-outline.active-warn {
+      background: var(--warning-tint-bg);
+      border-color: var(--warning-tint-bd);
+      color: var(--warning);
+    }
+
+    /* Color Tints */
+    .tint-primary { background: var(--primary-tint-bg); border-color: var(--primary-tint-bd); color: var(--primary); }
+    .tint-success { background: var(--success-tint-bg); border-color: var(--success-tint-bd); color: var(--success); }
+    .tint-warning { background: var(--warning-tint-bg); border-color: var(--warning-tint-bd); color: var(--warning); }
+    .tint-error   { background: var(--error-tint-bg);   border-color: var(--error-tint-bd);   color: var(--error); }
+    .tint-c1 { background: var(--c1-bg); border-color: var(--c1-bd); color: var(--c1-fg); }
+    .tint-c2 { background: var(--c2-bg); border-color: var(--c2-bd); color: var(--c2-fg); }
+    .tint-c3 { background: var(--c3-bg); border-color: var(--c3-bd); color: var(--c3-fg); }
+    .tint-c4 { background: var(--c4-bg); border-color: var(--c4-bd); color: var(--c4-fg); }
+    .tint-c5 { background: var(--c5-bg); border-color: var(--c5-bd); color: var(--c5-fg); }
+    .tint-c6 { background: var(--c6-bg); border-color: var(--c6-bd); color: var(--c6-fg); }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .dash-sample { width: 20px; height: 0; display: inline-block; }
+    .dash-red { border-top: 2px dashed var(--line-interaction); }
+    .dash-blue { border-top: 2px dashed var(--line-visibility); }
+    .dash-purple { border-top: 2px dashed var(--line-internal); }
+    .legend-hint { font-weight: 600; color: var(--primary); }
+
+    /* Blueprint Matrix */
+    .matrix-card { overflow: hidden; }
+    .blueprint-scroll { overflow-x: auto; }
+    .blueprint-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+    .blueprint-scroll::-webkit-scrollbar-track { background: var(--content-alt); }
+    .blueprint-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+    .bp-grid-wrap { min-width: 1480px; }
+    .bp-row { display: grid; }
+    .bp-row-border { border-bottom: 1px solid var(--card-border); }
+    .bp-row-border-strong { border-bottom: 1px solid var(--border); }
+    .bp-row-header { background: var(--content-alt); }
+    .bp-row-subtle { background: var(--content); }
+
+    .lane-label {
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      padding: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 2px;
+    }
+    .lane-label.bg-header { background: var(--content-alt); justify-content: center; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+    .lane-label.bg-subtle { background: var(--content); }
+    .lane-sub { font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; }
+    .lane-title-flex { display: inline-flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; flex-shrink: 0; }
+    .dot-physical { background: var(--dot-physical); }
+    .dot-digital  { background: var(--dot-digital); }
+
+    .stage-cell {
+      padding: 10px;
+      border-right: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: background-color 0.14s ease;
+    }
+    .stage-cell:last-child { border-right: none; }
+
+    .stage-head-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--card-border);
+      padding: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.14s ease;
+    }
+    .stage-head-btn:last-child { border-right: none; }
+    .stage-head-btn:hover { background: var(--card); }
+
+    .stage-col-selected {
+      box-shadow: inset 0 0 0 2px var(--primary);
+      background-color: #f4f8ff !important;
+    }
+    .fail-ring { box-shadow: inset 0 0 0 2px var(--warning-bar); }
+
+    .stage-head-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .stage-code { font-size: 12px; font-weight: 700; color: var(--primary); }
+    .dur-badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      white-space: nowrap;
+    }
+    .dur-badge.is-peak-hot {
+      background: var(--warning-tint-bg);
+      border-color: var(--warning-tint-bd);
+      color: var(--warning);
+    }
+    .stage-name { font-size: 12.5px; font-weight: 700; color: var(--fg); line-height: 1.35; }
+    .stage-en { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Neutral Evidence Chips (Unified Option 1 for Physical & Digital) */
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip-neutral {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .chip-card-neutral {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .empty-note { font-size: 12px; font-style: italic; color: var(--muted); }
+
+    /* Customer Goal Row */
+    .goal-cell-inner {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      gap: 6px;
+    }
+    .goal-box {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--primary-tint-bd);
+      background: var(--primary-tint-bg);
+      color: var(--fg);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+    .goal-arrow {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* Step Flows & Scenarios */
+    .step-card {
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--fg);
+    }
+    .step-card.is-white { background: var(--card); }
+
+    .step-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--primary-tint-bd);
+      background: var(--primary-tint-bg);
+      color: var(--primary);
+      margin-right: 4px;
+    }
+    .step-tag-muted {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--secondary-bg);
+      color: var(--secondary-fg);
+    }
+
+    .step-arrow {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1;
+      margin: 3px 0;
+      user-select: none;
+    }
+
+    .scenario-box {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+      background: var(--card);
+    }
+    .scenario-head { margin-bottom: 6px; }
+    .scenario-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .branch-sep {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .branch-sep-line { height: 1px; flex: 1; background: var(--border); }
+    .branch-sep-text { font-weight: 700; text-transform: uppercase; font-size: 12px; }
+    .branch-sep-text.is-branch { color: var(--primary); }
+
+    .actor-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .actor-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .step-text { margin: 0; font-size: 12px; line-height: 1.45; }
+
+    /* Three Blueprint Lines */
+    .bp-divider {
+      padding: 6px 12px;
+      background: var(--content-alt);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .bp-divider.line-interaction { border-top: 2px dashed var(--line-interaction); color: var(--line-interaction); }
+    .bp-divider.line-visibility  { border-top: 2px dashed var(--line-visibility);  color: var(--line-visibility); }
+    .bp-divider.line-internal    { border-top: 2px dashed var(--line-internal);    color: var(--line-internal); }
+
+    .support-stack { display: flex; flex-direction: column; gap: 6px; }
+    .fail-inline-box {
+      margin-top: 6px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--warning-tint-bd);
+      background: var(--warning-tint-bg);
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--fg);
+    }
+    .fail-inline-box strong { color: var(--warning); }
+
+    .dimmed { opacity: 0.28; transition: opacity 0.18s ease; }
+    .highlighted { opacity: 1; transition: opacity 0.18s ease; }
+
+    /* Stage Inspector */
+    .inspector-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .inspector-title { margin: 6px 0 0 0; font-size: 16px; font-weight: 700; }
+    .inspector-nav { display: flex; gap: 6px; }
+
+    .grid-12 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 1024px) {
+      .grid-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .col-5 { grid-column: span 5 / span 5; }
+      .col-7 { grid-column: span 7 / span 7; }
+    }
+
+    .stack-12 { display: flex; flex-direction: column; gap: 12px; }
+    .stack-10 { display: flex; flex-direction: column; gap: 10px; }
+
+    .panel-box {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: var(--content);
+    }
+    .panel-box.is-primary {
+      background: var(--primary-tint-bg);
+      border-color: var(--primary-tint-bd);
+    }
+    .panel-box.is-warning {
+      background: var(--warning-tint-bg);
+      border-color: var(--warning-tint-bd);
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .eyebrow.is-primary { color: var(--primary); }
+    .eyebrow.is-warning { color: var(--warning); }
+
+    .evidence-pair {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 640px) {
+      .evidence-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .mitigation-row {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--warning-tint-bd);
+      font-size: 12px;
+    }
+    .mitigation-row strong { color: var(--success); }
+
+    .inv-map-card {
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+    }
+    .inv-map-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    /* Inventory Table */
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .h2 { margin: 0 0 4px 0; font-size: 17px; font-weight: 700; }
+    .muted-xs { margin: 0; font-size: 12px; color: var(--muted); }
+
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      text-align: left;
+    }
+    thead tr {
+      background: var(--content-alt);
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    th { padding: 10px 12px; font-weight: 700; white-space: nowrap; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--card-border); vertical-align: top; }
+    tbody tr:hover { background: var(--content); }
+    .td-bold { font-weight: 600; color: var(--fg); }
+    .td-muted { color: var(--muted); }
+    .nowrap { white-space: nowrap; }
+
+    /* Bottleneck Bars */
+    .bar-group { display: flex; flex-direction: column; gap: 6px; }
+    .bar-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12.5px;
+    }
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      background: var(--content-alt);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill-off { height: 100%; background: var(--primary); border-radius: 999px; }
+    .bar-fill-peak { height: 100%; background: var(--warning-bar); border-radius: 999px; }
+    .bar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+    .fp-card {
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--content);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .fp-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .fp-title { font-weight: 700; color: var(--fg); }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="card card-pad">
+      <div class="header-top">
+        <div>
+          <div class="badge-row">
+            <span class="pill tint-primary">Service Design Blueprint</span>
+            <span id="meta-model" class="pill tint-c2"></span>
+            <span id="meta-location" class="pill tint-c4"></span>
+          </div>
+          <h1 id="meta-title" class="h1"></h1>
+          <p id="meta-subtitle" class="subtitle"></p>
+        </div>
+        <div id="kpi-grid" class="kpi-grid"></div>
+      </div>
+
+      <div class="header-toolbar">
+        <div class="tabs" role="tablist">
+          <button data-tab="blueprint" class="btn is-active">1. Blueprint Matrix</button>
+          <button data-tab="inventory" class="btn">2. Inventory Explorer</button>
+          <button data-tab="bottlenecks" class="btn">3. Thời gian &amp; Điểm nghẽn (Fail Points)</button>
+        </div>
+
+        <div id="blueprint-controls" class="controls">
+          <div class="segmented">
+            <button id="btn-offpeak" class="seg-btn active-offpeak"></button>
+            <button id="btn-peak" class="seg-btn"></button>
+          </div>
+
+          <label class="control-label">
+            <span>Lọc Actor:</span>
+            <select id="actor-filter" class="select"></select>
+          </label>
+
+          <button id="btn-failpoints" class="btn-outline">Hiện Fail Points</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- TAB 1: BLUEPRINT MATRIX -->
+    <section id="tab-blueprint" class="stack-12">
+      <div class="legend">
+        <div class="legend-items">
+          <span class="legend-item"><span class="dash-sample dash-red"></span> Line of Interaction</span>
+          <span class="legend-item"><span class="dash-sample dash-blue"></span> Line of Visibility</span>
+          <span class="legend-item"><span class="dash-sample dash-purple"></span> Line of Internal Interaction</span>
+          <span class="legend-item"><span class="step-tag" style="margin:0;">Step N</span> Luồng tuần tự</span>
+          <span class="legend-item"><span class="scenario-pill tint-c4">Scenario / Nhánh</span> Kịch bản thay thế</span>
+        </div>
+        <span class="legend-hint">Nhấn vào bất kỳ cột Giai đoạn nào để xem chi tiết Action → Inventory bên dưới</span>
+      </div>
+
+      <div class="card matrix-card">
+        <div class="blueprint-scroll">
+          <div id="blueprint-grid" class="bp-grid-wrap"></div>
+        </div>
+      </div>
+
+      <div id="stage-inspector" class="card card-pad"></div>
+    </section>
+
+    <!-- TAB 2: INVENTORY EXPLORER -->
+    <section id="tab-inventory" class="hidden">
+      <div class="card card-pad">
+        <div class="section-head">
+          <div>
+            <h2 class="h2">Danh mục Inventory theo Actor &amp; Action</h2>
+            <p class="muted-xs">Toàn bộ nguyên liệu tiêu hao, thiết bị, vật phẩm không gian và hạ tầng vận hành cần có để mỗi Actor thực thi đúng Step Flow.</p>
+          </div>
+          <div class="controls">
+            <input id="inv-search" type="text" class="input" placeholder="Tìm vật tư, thiết bị, action..." />
+            <select id="inv-cat" class="select"></select>
+            <select id="inv-actor" class="select"></select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item trong Inventory</th>
+                <th>Phân loại</th>
+                <th>Actor sử dụng</th>
+                <th>Phục vụ Action</th>
+                <th>Giai đoạn</th>
+                <th>Chu kỳ bổ sung / Quản lý</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: BOTTLENECKS & TIME ANALYSIS -->
+    <section id="tab-bottlenecks" class="hidden">
+      <div class="grid-12">
+        <div class="col-7 card card-pad stack-12">
+          <div>
+            <h2 class="h2">Phân bổ Thời gian theo Giai đoạn</h2>
+            <p id="time-subtitle" class="muted-xs"></p>
+          </div>
+          <div id="time-bars" class="stack-12"></div>
+          <div id="bar-legend" class="bar-legend"></div>
+        </div>
+
+        <div class="col-5 card card-pad stack-12">
+          <div>
+            <h2 class="h2">Điểm dễ gãy trải nghiệm (Fail Points)</h2>
+            <p class="muted-xs">Các vị trí rủi ro cao nhất trên Service Blueprint và giải pháp xử lý bằng quy trình &amp; inventory.</p>
+          </div>
+          <div id="failpoints-list" class="stack-10"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* === BLUEPRINT_DATA_START === */
+    const BLUEPRINT_DATA = {
+      "title": "Service Blueprint Template",
+      "subtitle": "Mẫu cấu trúc chuẩn — chạy scripts/render_blueprint.py với file JSON dữ liệu để tạo Service Blueprint hoàn chỉnh.",
+      "businessModel": "Business Model",
+      "location": "Location Context",
+      "offPeakLabel": "Giờ thường",
+      "peakLabel": "Giờ cao điểm",
+      "peakDescription": "Khung giờ cao điểm",
+      "timeUnit": "phút",
+      "stayPhaseNote": "",
+      "kpis": [
+        { "label": "Cấu trúc Blueprint", "valueOffPeak": "1 Stage • 9 Lanes", "valuePeak": "1 Stage • 9 Lanes", "accent": "default" }
+      ],
+      "actors": [
+        { "name": "Nhân viên", "label": "Nhân viên tuyến đầu", "color": "c1" },
+        { "name": "Hệ thống", "label": "Hệ thống / Support", "color": "c6" }
+      ],
+      "stages": [
+        {
+          "id": 1,
+          "code": "S1",
+          "name": "1. Giai đoạn mẫu",
+          "en": "Sample Stage",
+          "goal": "Mục tiêu khách hàng dẫn xuống hành động.",
+          "timeOffPeak": "1 – 2 phút",
+          "timePeak": "3 – 5 phút",
+          "maxOff": 2,
+          "maxPeak": 5,
+          "isStayPhase": false,
+          "isBottleneck": true,
+          "physicalEvidence": ["Điểm chạm vật lý mẫu"],
+          "digitalEvidence": ["Điểm chạm số mẫu"],
+          "customerFlows": [
+            {
+              "label": null,
+              "connectorBefore": null,
+              "color": "primary",
+              "steps": [{ "num": 1, "text": "Hành động bước 1 của khách hàng." }]
+            }
+          ],
+          "frontstageSteps": [{ "step": "Step 1", "actor": "Nhân viên", "text": "Hành động Frontstage." }],
+          "backstageSteps": [{ "step": "Step 1", "actor": "Nhân viên", "text": "Hành động Backstage." }],
+          "support": [{ "actor": "Hệ thống", "text": "Quy trình hỗ trợ." }],
+          "failPoint": "Mô tả điểm dễ gãy trải nghiệm.",
+          "mitigation": "Giải pháp khắc phục.",
+          "inventoryMapping": [{ "actor": "Nhân viên", "action": "Thao tác mẫu", "items": ["Vật tư mẫu"] }]
+        }
+      ],
+      "inventoryCatalog": [
+        { "item": "Vật tư mẫu", "cat": "Vận hành", "actor": "Nhân viên", "action": "Thao tác mẫu", "stage": "S1", "cycle": "Hàng ngày" }
+      ],
+      "failPoints": [
+        { "stage": "S1", "title": "Điểm nghẽn mẫu", "impact": "Ảnh hưởng trải nghiệm.", "fix": "Giải pháp xử lý." }
+      ]
+    };
+    /* === BLUEPRINT_DATA_END === */
+
+    const D = BLUEPRINT_DATA;
+    const STAGES = D.stages || [];
+    const ACTORS = D.actors || [];
+    const INVENTORY_CATALOG = D.inventoryCatalog || [];
+    const FAIL_POINTS = D.failPoints || [];
+
+    let state = {
+      activeTab: "blueprint",
+      mode: "offpeak",
+      actorFilter: "all",
+      showFailPoints: false,
+      selectedStageId: STAGES.length ? STAGES[0].id : 1
+    };
+
+    function esc(str) {
+      return String(str == null ? "" : str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function colorClass(code) {
+      const allowed = ["primary", "success", "warning", "error", "c1", "c2", "c3", "c4", "c5", "c6"];
+      return "tint-" + (allowed.includes(code) ? code : "c6");
+    }
+
+    function actorBadgeClass(actorName) {
+      const lower = String(actorName || "").toLowerCase();
+      const found = ACTORS.find(a => lower.includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(lower));
+      return found ? colorClass(found.color) : "tint-c6";
+    }
+
+    function matchesActor(actorName) {
+      if (state.actorFilter === "all") return true;
+      return String(actorName || "").toLowerCase().includes(state.actorFilter.toLowerCase());
+    }
+
+    function initStaticUI() {
+      document.title = D.title || "Service Design Blueprint";
+      document.getElementById("meta-title").textContent = D.title || "Service Design Blueprint";
+      document.getElementById("meta-subtitle").textContent = D.subtitle || "";
+      document.getElementById("meta-model").textContent = "Business Model: " + (D.businessModel || "—");
+      document.getElementById("meta-location").textContent = "Địa điểm: " + (D.location || "—");
+      document.getElementById("btn-offpeak").textContent = D.offPeakLabel || "Giờ thường";
+      document.getElementById("btn-peak").textContent = D.peakLabel || "Giờ cao điểm";
+
+      const actorFilter = document.getElementById("actor-filter");
+      actorFilter.innerHTML = `<option value="all">Tất cả Actors</option>` +
+        ACTORS.map(a => `<option value="${esc(a.name)}">${esc(a.label || a.name)}</option>`).join("");
+
+      const cats = Array.from(new Set(INVENTORY_CATALOG.map(r => r.cat).filter(Boolean)));
+      document.getElementById("inv-cat").innerHTML = `<option value="all">Tất cả phân loại</option>` +
+        cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+
+      const invActors = Array.from(new Set(INVENTORY_CATALOG.map(r => r.actor).filter(Boolean)));
+      document.getElementById("inv-actor").innerHTML = `<option value="all">Tất cả Actors</option>` +
+        invActors.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join("");
+
+      document.getElementById("time-subtitle").textContent =
+        `So sánh thời gian thao tác & chờ đợi giữa ${D.offPeakLabel || "Giờ thường"} và ${D.peakLabel || "Giờ cao điểm"}.`;
+
+      document.getElementById("bar-legend").innerHTML = `
+        <span class="legend-item"><span class="swatch" style="background:var(--primary)"></span> ${esc(D.offPeakLabel || "Giờ thường")}</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--warning-bar)"></span> ${esc(D.peakLabel || "Giờ cao điểm")}${D.peakDescription ? " (" + esc(D.peakDescription) + ")" : ""}</span>
+      `;
+    }
+
+    function renderKPIs() {
+      const kpis = D.kpis || [];
+      document.getElementById("kpi-grid").innerHTML = kpis.map(k => {
+        const val = state.mode === "offpeak" ? (k.valueOffPeak || "") : (k.valuePeak || k.valueOffPeak || "");
+        let cls = "kpi-val";
+        if (k.accent === "dynamic") {
+          cls += state.mode === "offpeak" ? " is-primary" : " is-warning";
+        } else if (k.accent === "primary") {
+          cls += " is-primary";
+        } else if (k.accent === "warning") {
+          cls += " is-warning";
+        }
+        return `<div class="kpi-box">
+          <div class="kpi-label">${esc(k.label)}</div>
+          <div class="${cls}">${esc(val)}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderCustomerFlowCell(stage) {
+      const flows = stage.customerFlows || [];
+      return flows.map(flow => {
+        const sep = flow.connectorBefore
+          ? `<div class="branch-sep">
+               <div class="branch-sep-line"></div>
+               <span class="branch-sep-text ${flow.connectorBefore.includes("↓") ? "is-branch" : ""}">${esc(flow.connectorBefore)}</span>
+               <div class="branch-sep-line"></div>
+             </div>`
+          : "";
+
+        const head = flow.label
+          ? `<div class="scenario-head"><span class="scenario-pill ${colorClass(flow.color || "c4")}">${esc(flow.label)}</span></div>`
+          : "";
+
+        const stepsHtml = (flow.steps || []).map((st, idx, arr) => `
+          <div class="step-card">
+            <span class="step-tag">Step ${esc(st.num)}</span>
+            <span>${esc(st.text)}</span>
+          </div>
+          ${idx < arr.length - 1 ? '<div class="step-arrow">↓</div>' : ""}
+        `).join("");
+
+        return `${sep}<div class="${flow.label ? "scenario-box" : ""}">${head}${stepsHtml}</div>`;
+      }).join("");
+    }
+
+    function renderActorStepList(steps, isBackstage) {
+      const list = steps || [];
+      if (!list.length) return `<span class="empty-note">—</span>`;
+      return list.map((item, idx) => {
+        const cls = matchesActor(item.actor) ? "highlighted" : "dimmed";
+        return `
+          <div class="step-card ${isBackstage ? "" : "is-white"} ${cls}">
+            <div class="actor-head">
+              <span class="step-tag-muted">${esc(item.step)}</span>
+              <span class="actor-badge ${actorBadgeClass(item.actor)}">${esc(item.actor)}</span>
+            </div>
+            <p class="step-text">${esc(item.text)}</p>
+          </div>
+          ${idx < list.length - 1 ? '<div class="step-arrow">↓</div>' : ""}
+        `;
+      }).join("");
+    }
+
+    function renderBlueprint() {
+      const grid = document.getElementById("blueprint-grid");
+      const colsStyle = `grid-template-columns: 175px repeat(${STAGES.length}, minmax(195px, 1fr));`;
+      const selCls = id => (id === state.selectedStageId ? "stage-col-selected" : "");
+
+      // Row 1: Stage & Duration
+      let html = `<div class="bp-row bp-row-border-strong bp-row-header" style="${colsStyle}">
+        <div class="lane-label bg-header">
+          <span>Giai đoạn</span>
+          <span class="lane-sub">&amp; Thời lượng</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const dur = state.mode === "offpeak" ? s.timeOffPeak : s.timePeak;
+        const isPeakHot = state.mode === "peak" && s.isBottleneck;
+        const failRing = (state.showFailPoints && s.isBottleneck) ? "fail-ring" : "";
+        html += `
+          <button onclick="selectStage(${s.id})" class="stage-head-btn ${selCls(s.id)} ${failRing}">
+            <div class="stage-head-top">
+              <span class="stage-code">${esc(s.code)}</span>
+              <span class="dur-badge ${isPeakHot ? "is-peak-hot" : ""}">${esc(dur)}</span>
+            </div>
+            <div class="stage-name">${esc(String(s.name || "").replace(/^\d+\.\s*/, ""))}</div>
+            <div class="stage-en">${esc(s.en || "")}</div>
+          </button>`;
+      });
+      html += `</div>`;
+
+      // Row 2: Physical Evidence (Neutral Chips)
+      html += `<div class="bp-row bp-row-border" style="${colsStyle}">
+        <div class="lane-label">
+          <span class="lane-title-flex"><span class="dot dot-physical"></span> Physical Evidence</span>
+          <span class="lane-sub">Bằng chứng vật lý</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const list = s.physicalEvidence || [];
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${list.length
+            ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>`
+            : `<span class="empty-note">— (Không có bằng chứng vật lý trực tiếp)</span>`}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 3: Digital Evidence (Unified Neutral Chips — Option 1)
+      html += `<div class="bp-row bp-row-border-strong" style="${colsStyle}">
+        <div class="lane-label">
+          <span class="lane-title-flex"><span class="dot dot-digital"></span> Digital Evidence</span>
+          <span class="lane-sub">Bằng chứng số / Online</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const list = s.digitalEvidence || [];
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${list.length
+            ? `<div class="chip-wrap">${list.map(tp => `<span class="chip-neutral">${esc(tp)}</span>`).join("")}</div>`
+            : `<span class="empty-note">— (Không có điểm chạm số trực tiếp)</span>`}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 4: Customer Goal (Directly above Customer Actions)
+      html += `<div class="bp-row bp-row-border bp-row-subtle" style="${colsStyle}">
+        <div class="lane-label bg-subtle">
+          <span style="color:var(--primary)">Customer Goal</span>
+          <span class="lane-sub">Mục tiêu dẫn xuống Action ↓</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          <div class="goal-cell-inner">
+            <div class="goal-box">${esc(s.goal)}</div>
+            <div class="goal-arrow">↓</div>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 5: Customer Actions (Step Flow + Explicit Scenarios)
+      html += `<div class="bp-row" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Customer Actions</span>
+          <span class="lane-sub">Luồng Step theo Scenario</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${renderCustomerFlowCell(s)}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Line of Interaction
+      html += `<div class="bp-divider line-interaction">▼ Line of Interaction — Ranh giới tương tác trực tiếp (Khách hàng ↔ Frontstage)</div>`;
+
+      // Row 6: Frontstage Actions
+      html += `<div class="bp-row" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Frontstage Actions</span>
+          <span class="lane-sub">Step Flow khách thấy</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          ${renderActorStepList(s.frontstageSteps, false)}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Line of Visibility
+      html += `<div class="bp-divider line-visibility">▼ Line of Visibility — Ranh giới tầm nhìn (Khách không trực tiếp nhìn thấy bên dưới)</div>`;
+
+      // Row 7: Backstage Actions
+      html += `<div class="bp-row" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Backstage Actions</span>
+          <span class="lane-sub">Step Flow hậu trường</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const failRing = (state.showFailPoints && s.isBottleneck) ? "fail-ring" : "";
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)} ${failRing}">
+          ${renderActorStepList(s.backstageSteps, true)}
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Line of Internal Interaction
+      html += `<div class="bp-divider line-internal">▼ Line of Internal Interaction — Ranh giới hỗ trợ nội bộ &amp; Hệ thống / Đối tác</div>`;
+
+      // Row 8: Support Processes
+      html += `<div class="bp-row bp-row-border" style="${colsStyle}">
+        <div class="lane-label">
+          <span>Support Processes</span>
+          <span class="lane-sub">Quy trình, IT &amp; Chuỗi cung ứng</span>
+        </div>`;
+      STAGES.forEach(s => {
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          <div class="support-stack">
+            ${(s.support || []).map(item => {
+              const cls = matchesActor(item.actor) ? "highlighted" : "dimmed";
+              return `<div class="step-card is-white ${cls}">
+                <div style="margin-bottom:4px;"><span class="actor-badge ${actorBadgeClass(item.actor)}">${esc(item.actor)}</span></div>
+                <div>${esc(item.text)}</div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Row 9: Inventory Preview
+      html += `<div class="bp-row bp-row-subtle" style="${colsStyle}">
+        <div class="lane-label bg-subtle">
+          <span>Inventory Cần Có</span>
+          <span class="lane-sub">Nhấn cột để xem đầy đủ</span>
+        </div>`;
+      STAGES.forEach(s => {
+        const allItems = (s.inventoryMapping || []).flatMap(m => m.items || []);
+        const preview = allItems.slice(0, 3);
+        const extra = allItems.length - preview.length;
+        html += `<div onclick="selectStage(${s.id})" class="stage-cell ${selCls(s.id)}">
+          <div class="chip-wrap">
+            ${preview.map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}
+            ${extra > 0 ? `<span class="actor-badge tint-primary">+${extra} item</span>` : ""}
+          </div>
+          ${state.showFailPoints && s.failPoint ? `<div class="fail-inline-box"><strong>Rủi ro:</strong> ${esc(s.failPoint)}</div>` : ""}
+        </div>`;
+      });
+      html += `</div>`;
+
+      grid.innerHTML = html;
+      renderInspector();
+    }
+
+    function renderInspector() {
+      const idx = STAGES.findIndex(st => st.id === state.selectedStageId);
+      const s = STAGES[idx >= 0 ? idx : 0];
+      if (!s) return;
+      const prevId = STAGES[idx > 0 ? idx - 1 : STAGES.length - 1].id;
+      const nextId = STAGES[idx < STAGES.length - 1 ? idx + 1 : 0].id;
+
+      document.getElementById("stage-inspector").innerHTML = `
+        <div class="inspector-head">
+          <div>
+            <div class="badge-row" style="margin-bottom:0;">
+              <span class="pill tint-primary">${esc(s.code)} • Chi tiết Giai đoạn</span>
+              <span class="muted-xs">${esc(D.offPeakLabel || "Thường")}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> | ${esc(D.peakLabel || "Cao điểm")}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong></span>
+            </div>
+            <h3 class="inspector-title">${esc(s.name)}${s.en ? " (" + esc(s.en) + ")" : ""}</h3>
+          </div>
+          <div class="inspector-nav">
+            <button onclick="selectStage(${prevId})" class="btn-outline">← Giai đoạn trước</button>
+            <button onclick="selectStage(${nextId})" class="btn-outline">Giai đoạn sau →</button>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-5 stack-12">
+            <div class="panel-box is-primary">
+              <div class="eyebrow is-primary">Customer Goal tại giai đoạn này</div>
+              <div style="font-size:13.5px;">${esc(s.goal)}</div>
+            </div>
+
+            <div class="evidence-pair">
+              <div class="panel-box">
+                <div class="eyebrow"><span class="lane-title-flex"><span class="dot dot-physical"></span> Physical Evidence</span></div>
+                <div class="chip-wrap">
+                  ${(s.physicalEvidence || []).length
+                    ? s.physicalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("")
+                    : '<span class="empty-note">Không có</span>'}
+                </div>
+              </div>
+              <div class="panel-box">
+                <div class="eyebrow"><span class="lane-title-flex"><span class="dot dot-digital"></span> Digital Evidence</span></div>
+                <div class="chip-wrap">
+                  ${(s.digitalEvidence || []).length
+                    ? s.digitalEvidence.map(i => `<span class="chip-card-neutral">${esc(i)}</span>`).join("")
+                    : '<span class="empty-note">Không có</span>'}
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-box is-warning">
+              <div class="eyebrow is-warning">Fail Point (Điểm dễ gãy trải nghiệm)</div>
+              <div style="font-size:12.5px;">${esc(s.failPoint || "—")}</div>
+              ${s.mitigation ? `<div class="mitigation-row"><strong>Giải pháp thiết kế:</strong> ${esc(s.mitigation)}</div>` : ""}
+            </div>
+          </div>
+
+          <div class="col-7 stack-10">
+            <div class="eyebrow" style="margin-bottom:0;">Mapping: Actor → Action → Item cần có trong Inventory</div>
+            ${(s.inventoryMapping || []).map(m => `
+              <div class="inv-map-card">
+                <div class="inv-map-head">
+                  <span class="actor-badge ${actorBadgeClass(m.actor)}">${esc(m.actor)}</span>
+                  <span>→ ${esc(m.action)}</span>
+                </div>
+                <div class="chip-wrap">
+                  ${(m.items || []).map(it => `<span class="chip-card-neutral">${esc(it)}</span>`).join("")}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function selectStage(id) {
+      state.selectedStageId = id;
+      renderBlueprint();
+    }
+
+    function renderInventory() {
+      const q = (document.getElementById("inv-search").value || "").toLowerCase().trim();
+      const cat = document.getElementById("inv-cat").value;
+      const actor = document.getElementById("inv-actor").value;
+
+      const filtered = INVENTORY_CATALOG.filter(row => {
+        const matchQ = !q ||
+          String(row.item || "").toLowerCase().includes(q) ||
+          String(row.action || "").toLowerCase().includes(q) ||
+          String(row.stage || "").toLowerCase().includes(q);
+        const matchCat = cat === "all" || row.cat === cat;
+        const matchActor = actor === "all" || String(row.actor || "").includes(actor);
+        return matchQ && matchCat && matchActor;
+      });
+
+      const tbody = document.getElementById("inventory-tbody");
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">Không tìm thấy item nào khớp bộ lọc.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(row => `
+        <tr>
+          <td class="td-bold">${esc(row.item)}</td>
+          <td><span class="chip-neutral nowrap">${esc(row.cat)}</span></td>
+          <td><span class="actor-badge ${actorBadgeClass(row.actor)}">${esc(row.actor)}</span></td>
+          <td class="td-muted">${esc(row.action)}</td>
+          <td class="td-bold nowrap">${esc(row.stage)}</td>
+          <td class="td-muted">${esc(row.cycle)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderBottlenecks() {
+      const opStages = STAGES.filter(s => !s.isStayPhase);
+      const maxVal = Math.max(1, ...opStages.map(s => Math.max(Number(s.maxOff) || 0, Number(s.maxPeak) || 0)));
+      const scale = maxVal * 1.08;
+
+      let barsHtml = opStages.map(s => {
+        const offPct = Math.min(100, ((Number(s.maxOff) || 0) / scale) * 100);
+        const peakPct = Math.min(100, ((Number(s.maxPeak) || 0) / scale) * 100);
+        return `
+          <div class="bar-group">
+            <div class="bar-head">
+              <span class="td-bold">
+                ${esc(s.name)}
+                ${s.isBottleneck ? '<span class="actor-badge tint-warning" style="margin-left:6px;">Bottleneck</span>' : ""}
+              </span>
+              <span class="muted-xs" style="font-variant-numeric:tabular-nums;">
+                ${esc(D.offPeakLabel || "Thường")}: <strong style="color:var(--fg)">${esc(s.timeOffPeak)}</strong> •
+                ${esc(D.peakLabel || "Cao điểm")}: <strong style="color:${s.isBottleneck ? "var(--warning)" : "var(--fg)"}">${esc(s.timePeak)}</strong>
+              </span>
+            </div>
+            <div class="bar-track"><div class="bar-fill-off" style="width:${offPct}%"></div></div>
+            <div class="bar-track"><div class="bar-fill-peak" style="width:${peakPct}%"></div></div>
+          </div>
+        `;
+      }).join("");
+
+      if (D.stayPhaseNote) {
+        barsHtml += `<div class="panel-box" style="font-size:12px;color:var(--muted);">${esc(D.stayPhaseNote)}</div>`;
+      }
+      document.getElementById("time-bars").innerHTML = barsHtml;
+
+      document.getElementById("failpoints-list").innerHTML = FAIL_POINTS.map((fp, idx) => `
+        <div class="fp-card">
+          <div class="fp-head">
+            <span class="fp-title">${idx + 1}. ${esc(fp.title)}</span>
+            <span class="pill tint-warning" style="flex-shrink:0;">${esc(fp.stage)}</span>
+          </div>
+          <div style="color:var(--muted);"><strong style="color:var(--fg);">Tác động:</strong> ${esc(fp.impact)}</div>
+          <div style="color:var(--muted);"><strong style="color:var(--success);">Cách khắc phục:</strong> ${esc(fp.fix)}</div>
+        </div>
+      `).join("");
+    }
+
+    // Bind events
+    document.querySelectorAll(".tabs .btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        state.activeTab = btn.dataset.tab;
+        document.querySelectorAll(".tabs .btn").forEach(b => b.classList.toggle("is-active", b.dataset.tab === state.activeTab));
+        document.getElementById("tab-blueprint").classList.toggle("hidden", state.activeTab !== "blueprint");
+        document.getElementById("tab-inventory").classList.toggle("hidden", state.activeTab !== "inventory");
+        document.getElementById("tab-bottlenecks").classList.toggle("hidden", state.activeTab !== "bottlenecks");
+        document.getElementById("blueprint-controls").classList.toggle("hidden", state.activeTab !== "blueprint");
+      });
+    });
+
+    document.getElementById("btn-offpeak").addEventListener("click", () => {
+      state.mode = "offpeak";
+      document.getElementById("btn-offpeak").className = "seg-btn active-offpeak";
+      document.getElementById("btn-peak").className = "seg-btn";
+      renderKPIs();
+      renderBlueprint();
+    });
+
+    document.getElementById("btn-peak").addEventListener("click", () => {
+      state.mode = "peak";
+      document.getElementById("btn-offpeak").className = "seg-btn";
+      document.getElementById("btn-peak").className = "seg-btn active-peak";
+      renderKPIs();
+      renderBlueprint();
+    });
+
+    document.getElementById("actor-filter").addEventListener("change", e => {
+      state.actorFilter = e.target.value;
+      renderBlueprint();
+    });
+
+    document.getElementById("btn-failpoints").addEventListener("click", e => {
+      state.showFailPoints = !state.showFailPoints;
+      e.target.classList.toggle("active-warn", state.showFailPoints);
+      renderBlueprint();
+    });
+
+    document.getElementById("inv-search").addEventListener("input", renderInventory);
+    document.getElementById("inv-cat").addEventListener("change", renderInventory);
+    document.getElementById("inv-actor").addEventListener("change", renderInventory);
+
+    initStaticUI();
+    renderKPIs();
+    renderBlueprint();
+    renderInventory();
+    renderBottlenecks();
+  </script>
+</body>
+</html>
