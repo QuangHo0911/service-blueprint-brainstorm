@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Service Blueprint — Redirecting...</title>
+  <script>
+    (function () {
+      var path = (window.location.pathname || "").replace(/\/+$/, "");
+      var lower = path.toLowerCase();
+      var base = "/service-blueprint-brainstorm/examples/service-blueprint-cafe-vn-en.html";
+      if (lower.endsWith("/en")) {
+        window.location.replace(base + "?lang=en");
+      } else if (lower.endsWith("/vn") || lower.endsWith("/vi")) {
+        window.location.replace(base + "?lang=vn");
+      } else {
+        window.location.replace(base);
+      }
+    })();
+  </script>
+</head>
+<body></body>
+</html>

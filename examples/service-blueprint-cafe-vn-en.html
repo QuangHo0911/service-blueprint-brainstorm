@@ -963,8 +963,26 @@
       }
     };
 
+    function detectInitialLang() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const qLang = (params.get("lang") || "").toLowerCase();
+        if (qLang === "en") return "en";
+        if (qLang === "vn" || qLang === "vi") return "vi";
+
+        const hash = (window.location.hash || "").toLowerCase().replace(/^#\/?/, "");
+        if (hash === "en") return "en";
+        if (hash === "vn" || hash === "vi") return "vi";
+
+        const path = (window.location.pathname || "").toLowerCase().replace(/\/+$/, "");
+        if (path.endsWith("/en")) return "en";
+        if (path.endsWith("/vn") || path.endsWith("/vi")) return "vi";
+      } catch (e) {}
+      return "vi";
+    }
+
     let state = {
-      lang: "vi",
+      lang: detectInitialLang(),
       activeTab: "blueprint",
       mode: "offpeak",
       actorFilter: "all",
